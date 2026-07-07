@@ -1,4 +1,4 @@
-<h1 class="text-2xl font-semibold mb-6"><%= @band %> near <%= current_user.zip %></h1>
+<h1 class="text-2xl font-semibold mb-6"><%= @band %> near <%= @zip %></h1>
 
 <% if @not_found %>
   <p class="text-gray-600 mb-4">Couldn't find <%= @band %> on SeatGeek — check the spelling?</p>

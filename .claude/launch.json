@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "show-list-web",
-      "runtimeExecutable": "bin/rails",
-      "runtimeArgs": ["server", "-p", "3000"],
+      "runtimeExecutable": "/Users/tom/.rbenv/shims/bundle",
+      "runtimeArgs": ["exec", "rails", "server", "-p", "3000"],
       "port": 3000
     }
   ]

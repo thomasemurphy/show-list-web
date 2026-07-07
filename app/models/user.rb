@@ -17,7 +17,7 @@ class User
   end
 
   # Mirrors shared/db.py's upsert_user: creates the doc with created_at if it
-  # doesn't exist yet, otherwise leaves existing fields (zip, bands, channel,
+  # doesn't exist yet, otherwise leaves existing fields (zips, bands, channel,
   # messages) untouched.
   def self.find_or_create(phone)
     find(phone) || begin
@@ -31,7 +31,7 @@ class User
     @data = data
   end
 
-  def zip = @data[:zip]
+  def zips = @data[:zips] || []
   def channel = @data[:channel] || "sms"
   def bands = @data[:bands] || []
 
@@ -45,9 +45,14 @@ class User
     @data[:bands] = bands - [name]
   end
 
-  def update_zip(zip_code)
-    doc_ref.set({ zip: zip_code }, merge: true)
-    @data[:zip] = zip_code
+  def add_zip(zip_code)
+    doc_ref.set({ zips: FIRESTORE.field_array_union(zip_code) }, merge: true)
+    @data[:zips] = (zips + [zip_code]).uniq
+  end
+
+  def remove_zip(zip_code)
+    doc_ref.set({ zips: FIRESTORE.field_array_delete(zip_code) }, merge: true)
+    @data[:zips] = zips - [zip_code]
   end
 
   private

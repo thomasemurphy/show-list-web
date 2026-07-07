@@ -18,7 +18,8 @@ Rails.application.routes.draw do
   delete "logout",       to: "sessions#destroy"
 
   get    "dashboard",   to: "dashboard#show"
-  patch  "zip",         to: "dashboard#update_zip"
+  post   "zips",        to: "zips#create"
+  delete "zips/:code",  to: "zips#destroy", constraints: { code: /\d{5}/ }, as: :zip
   post   "bands",       to: "bands#create"
   delete "bands/:name", to: "bands#destroy", constraints: { name: /[^\/]+/ }, as: :band
 
