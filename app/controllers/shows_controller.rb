@@ -17,5 +17,11 @@ class ShowsController < ApplicationController
     slug = SeatgeekClient.resolve(@band)
     @events = slug ? SeatgeekClient.shows(slug, @band, @zip) : []
     @not_found = slug.nil?
+    ShowCache.store(@band, @zip, @events)
+
+    if turbo_frame_request?
+      render partial: "shows/cell",
+             locals: { band: @band, zip: @zip, events: @events, checked: true, not_found: @not_found }
+    end
   end
 end

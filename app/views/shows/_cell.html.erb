@@ -1,0 +1,16 @@
+<%= turbo_frame_tag "show_cell_#{ShowCache.key(band, zip)}" do %>
+  <% if checked %>
+    <% if local_assigns[:not_found] %>
+      <div class="text-xs text-gray-500 mb-1">Not found on SeatGeek</div>
+    <% elsif events.present? %>
+      <%= link_to shows_path(band: band, zip: zip), data: { turbo_frame: "_top" }, class: "block text-xs text-gray-700 underline mb-1" do %>
+        <%= events.map { |event| (Date.parse(event["datetime_local"]).strftime("%b %-d") rescue event["datetime_local"]) }.join(", ") %>
+      <% end %>
+    <% else %>
+      <div class="text-xs text-gray-500 mb-1">No shows found</div>
+    <% end %>
+    <%= link_to "Refresh", shows_path(band: band, zip: zip), class: "text-sm underline" %>
+  <% else %>
+    <%= link_to "Check", shows_path(band: band, zip: zip), class: "text-sm underline" %>
+  <% end %>
+<% end %>

@@ -6,6 +6,11 @@
       "runtimeExecutable": "/Users/tom/.rbenv/shims/bundle",
       "runtimeArgs": ["exec", "rails", "server", "-p", "3000"],
       "port": 3000
+    },
+    {
+      "name": "show-list-web-css",
+      "runtimeExecutable": "/Users/tom/.rbenv/shims/bundle",
+      "runtimeArgs": ["exec", "rails", "tailwindcss:watch"]
     }
   ]
 }

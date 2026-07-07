@@ -1,5 +1,5 @@
 <div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-semibold">Show List</h1>
+  <h1 class="text-2xl font-semibold">showlist</h1>
   <%= button_to "Log out", logout_path, method: :delete, class: "text-sm text-gray-500 underline bg-transparent" %>
 </div>
 
@@ -29,34 +29,14 @@
   <% if current_user.bands.empty? %>
     <p class="text-gray-500 mb-3">Not tracking any bands yet.</p>
   <% else %>
-    <ul class="mb-3 flex flex-col gap-2">
-      <% current_user.bands.each do |band| %>
-        <li class="flex justify-between items-center border rounded px-3 py-2">
-          <span><%= band %></span>
-          <%= button_to "Remove", band_path(band), method: :delete, class: "text-sm text-red-600 underline bg-transparent" %>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-
-  <%= form_with url: bands_path, method: :post, class: "flex gap-2" do |f| %>
-    <%= f.text_field :name, placeholder: "Add a band", class: "border rounded px-3 py-2 flex-1" %>
-    <%= f.submit "Add", class: "bg-black text-white rounded px-3 py-2" %>
-  <% end %>
-</section>
-
-<section class="mb-8">
-  <h2 class="font-medium mb-2">Check shows</h2>
-  <% if current_user.bands.empty? || current_user.zips.empty? %>
-    <p class="text-gray-500">Track a band and add a zip code to check shows.</p>
-  <% else %>
-    <table class="border-collapse">
+    <table class="border-collapse mb-3">
       <thead>
         <tr>
           <th class="border px-3 py-2"></th>
           <% current_user.zips.each do |zip| %>
             <th class="border px-3 py-2 text-sm font-medium"><%= zip %></th>
           <% end %>
+          <th class="border px-3 py-2"></th>
         </tr>
       </thead>
       <tbody>
@@ -64,26 +44,22 @@
           <tr>
             <th class="border px-3 py-2 text-sm font-medium text-left"><%= band %></th>
             <% current_user.zips.each do |zip| %>
+              <% cache = ShowCache.find(band, zip) %>
               <td class="border px-3 py-2 text-center">
-                <%= link_to "Check", shows_path(band: band, zip: zip), class: "text-sm underline" %>
+                <%= render "shows/cell", band: band, zip: zip, events: cache && cache[:events], checked: cache.present? %>
               </td>
             <% end %>
+            <td class="border px-3 py-2 text-center">
+              <%= button_to "Remove", band_path(band), method: :delete, class: "text-sm text-red-600 underline bg-transparent" %>
+            </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   <% end %>
-</section>
 
-<section>
-  <h2 class="font-medium mb-2">Check if a band is coming to town</h2>
-  <% if current_user.zips.empty? %>
-    <p class="text-gray-500">Add a zip code first.</p>
-  <% else %>
-    <%= form_with url: shows_path, method: :get, class: "flex gap-2" do |f| %>
-      <%= f.text_field :band, placeholder: "Band name", class: "border rounded px-3 py-2 flex-1" %>
-      <%= f.select :zip, current_user.zips, {}, class: "border rounded px-3 py-2" %>
-      <%= f.submit "Check", class: "bg-black text-white rounded px-3 py-2" %>
-    <% end %>
+  <%= form_with url: bands_path, method: :post, class: "flex gap-2" do |f| %>
+    <%= f.text_field :name, placeholder: "Add a band", class: "border rounded px-3 py-2 flex-1" %>
+    <%= f.submit "Add", class: "bg-black text-white rounded px-3 py-2" %>
   <% end %>
 </section>
