@@ -1,0 +1,9 @@
+<h1 class="text-2xl font-semibold mb-6">Enter your code</h1>
+<p class="mb-4 text-gray-600">We texted a 6-digit code to <%= session[:pending_phone] %>.</p>
+
+<%= form_with url: login_verify_path, method: :post, class: "flex flex-col gap-3" do |f| %>
+  <%= f.label :code, "Code", class: "font-medium" %>
+  <%= f.text_field :code, inputmode: "numeric", pattern: "[0-9]*", maxlength: 6, required: true,
+        class: "border rounded px-3 py-2" %>
+  <%= f.submit "Verify", class: "bg-black text-white rounded px-3 py-2" %>
+<% end %>

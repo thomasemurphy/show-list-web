@@ -1,0 +1,8 @@
+<h1 class="text-2xl font-semibold mb-6">Log in to Show List</h1>
+
+<%= form_with url: login_path, method: :post, class: "flex flex-col gap-3" do |f| %>
+  <%= f.label :phone, "Phone number", class: "font-medium" %>
+  <%= f.telephone_field :phone, placeholder: "(555) 123-4567", required: true,
+        class: "border rounded px-3 py-2" %>
+  <%= f.submit "Text me a code", class: "bg-black text-white rounded px-3 py-2" %>
+<% end %>
