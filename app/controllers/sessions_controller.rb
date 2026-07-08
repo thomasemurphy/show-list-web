@@ -32,6 +32,7 @@ class SessionsController < ApplicationController
     end
 
     if TwilioVerifyClient.check_code(phone, params[:code])
+      request.session_options[:expire_after] = 1.year if params[:stay_logged_in] == "1"
       session.delete(:pending_phone)
       session[:phone] = phone
       redirect_to dashboard_path, notice: "Logged in."
