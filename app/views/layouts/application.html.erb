@@ -23,10 +23,10 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="bg-gradient-to-b from-gray-50 to-gray-200 min-h-screen">
     <main class="container mx-auto mt-16 px-5 max-w-md">
       <% flash.each do |type, message| %>
-        <p class="mb-4 px-3 py-2 rounded <%= type == "alert" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800" %>"><%= message %></p>
+        <p class="mb-4 px-3 py-2 rounded-lg border <%= type == "alert" ? "bg-red-50 text-red-700 border-red-100" : "bg-green-50 text-green-700 border-green-100" %>"><%= message %></p>
       <% end %>
       <%= yield %>
     </main>

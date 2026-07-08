@@ -1,16 +1,22 @@
-<%= turbo_frame_tag "show_cell_#{ShowCache.key(band, zip)}" do %>
+<%= turbo_frame_tag "show_cell_#{ShowCache.key(band, zip)}", class: "block" do %>
   <% if checked %>
-    <% if local_assigns[:not_found] %>
-      <div class="text-xs text-gray-500 mb-1">Not found on SeatGeek</div>
-    <% elsif events.present? %>
-      <%= link_to shows_path(band: band, zip: zip), data: { turbo_frame: "_top" }, class: "block text-xs text-gray-700 underline mb-1" do %>
-        <%= events.map { |event| (Date.parse(event["datetime_local"]).strftime("%b %-d") rescue event["datetime_local"]) }.join(", ") %>
+    <div class="pb-8">
+      <% if local_assigns[:not_found] %>
+        <div class="text-xs text-gray-400">Not found on SeatGeek</div>
+      <% elsif events.present? %>
+        <%= link_to shows_path(band: band, zip: zip), data: { turbo_frame: "_top" }, class: "block text-xs font-medium text-gray-700 hover:text-gray-900 hover:underline transition-colors" do %>
+          <%= events.map { |event| (Date.parse(event["datetime_local"]).strftime("%b %-d") rescue event["datetime_local"]) }.join(", ") %>
+        <% end %>
+      <% else %>
+        <div class="text-xs text-gray-400">No shows found</div>
       <% end %>
-    <% else %>
-      <div class="text-xs text-gray-500 mb-1">No shows found</div>
+    </div>
+    <%= link_to shows_path(band: band, zip: zip), class: "btn-text-muted inline-flex items-center justify-center p-1.5 absolute bottom-2 left-1/2 -translate-x-1/2", title: "Refresh", aria: { label: "Refresh #{band} near #{zip}" } do %>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4">
+        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"></path>
+      </svg>
     <% end %>
-    <%= link_to "Refresh", shows_path(band: band, zip: zip), class: "text-sm underline" %>
   <% else %>
-    <%= link_to "Check", shows_path(band: band, zip: zip), class: "text-sm underline" %>
+    <%= link_to "Check", shows_path(band: band, zip: zip), class: "btn-text-muted absolute bottom-2 left-1/2 -translate-x-1/2" %>
   <% end %>
 <% end %>

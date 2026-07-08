@@ -1,65 +1,67 @@
 <div class="flex justify-between items-center mb-6">
-  <h1 class="text-2xl font-semibold">showlist</h1>
-  <%= button_to "Log out", logout_path, method: :delete, class: "text-sm text-gray-500 underline bg-transparent" %>
+  <h1 class="text-2xl font-semibold text-gray-900">showlist</h1>
+  <%= button_to "Log out", logout_path, method: :delete, class: "btn-text-muted text-sm px-3 py-1" %>
 </div>
 
 <section class="mb-8">
-  <h2 class="font-medium mb-2">Zip codes</h2>
-  <% if current_user.zips.empty? %>
-    <p class="text-gray-500 mb-3">No zip codes saved yet.</p>
-  <% else %>
-    <ul class="mb-3 flex flex-col gap-2">
-      <% current_user.zips.each do |zip| %>
-        <li class="flex justify-between items-center border rounded px-3 py-2">
-          <span><%= zip %></span>
-          <%= button_to "Remove", zip_path(zip), method: :delete, class: "text-sm text-red-600 underline bg-transparent" %>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-
-  <%= form_with url: zips_path, method: :post, class: "flex gap-2" do |f| %>
-    <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "border rounded px-3 py-2 w-32" %>
-    <%= f.submit "Add", class: "bg-black text-white rounded px-3 py-2" %>
-  <% end %>
-</section>
-
-<section class="mb-8">
-  <h2 class="font-medium mb-2">Tracked bands</h2>
-  <% if current_user.bands.empty? %>
-    <p class="text-gray-500 mb-3">Not tracking any bands yet.</p>
-  <% else %>
-    <table class="border-collapse mb-3">
-      <thead>
+  <div class="card overflow-x-auto mb-3">
+    <table class="w-full border-collapse text-sm">
+      <thead class="bg-gray-50">
         <tr>
-          <th class="border px-3 py-2"></th>
+          <th class="px-3 py-3 border-b-2 border-gray-100"></th>
           <% current_user.zips.each do |zip| %>
-            <th class="border px-3 py-2 text-sm font-medium"><%= zip %></th>
+            <th class="px-3 py-3 border-b-2 border-gray-100 font-semibold text-gray-700">
+              <div class="flex flex-col items-center gap-1">
+                <span><%= zip %></span>
+                <%= button_to zip_path(zip), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Remove zip code #{zip}?" }, title: "Remove", aria: { label: "Remove zip code #{zip}" } do %>
+                  <%= render "shared/trash_icon", size: "size-3.5" %>
+                <% end %>
+              </div>
+            </th>
           <% end %>
-          <th class="border px-3 py-2"></th>
+          <th class="px-3 py-3 border-b-2 border-gray-100" data-controller="reveal">
+            <button type="button" data-reveal-target="button" data-action="click->reveal#show"
+                    class="btn-primary">Add zip code</button>
+            <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
+              <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
+              <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+            <% end %>
+          </th>
         </tr>
       </thead>
       <tbody>
         <% current_user.bands.each do |band| %>
-          <tr>
-            <th class="border px-3 py-2 text-sm font-medium text-left"><%= band %></th>
+          <tr class="border-b border-gray-100 last:border-b-0">
+            <th class="px-3 py-3 text-left font-medium text-gray-900">
+              <div class="flex items-center gap-2">
+                <%= button_to band_path(band), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Stop tracking #{band}?" }, title: "Remove", aria: { label: "Stop tracking #{band}" } do %>
+                  <%= render "shared/trash_icon", size: "size-3.5" %>
+                <% end %>
+                <span><%= band %></span>
+              </div>
+            </th>
             <% current_user.zips.each do |zip| %>
               <% cache = ShowCache.find(band, zip) %>
-              <td class="border px-3 py-2 text-center">
+              <td class="px-3 py-3 text-center relative">
                 <%= render "shows/cell", band: band, zip: zip, events: cache && cache[:events], checked: cache.present? %>
               </td>
             <% end %>
-            <td class="border px-3 py-2 text-center">
-              <%= button_to "Remove", band_path(band), method: :delete, class: "text-sm text-red-600 underline bg-transparent" %>
-            </td>
           </tr>
         <% end %>
+        <tr>
+          <th class="px-3 py-3" data-controller="reveal">
+            <button type="button" data-reveal-target="button" data-action="click->reveal#show"
+                    class="btn-primary">Add band</button>
+            <%= form_with url: bands_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
+              <%= f.text_field :name, placeholder: "Add a band", class: "input-field w-24 px-2 py-1", data: { reveal_target: "input" } %>
+              <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+            <% end %>
+          </th>
+          <% current_user.zips.each do %>
+            <td class="px-3 py-3"></td>
+          <% end %>
+        </tr>
       </tbody>
     </table>
-  <% end %>
-
-  <%= form_with url: bands_path, method: :post, class: "flex gap-2" do |f| %>
-    <%= f.text_field :name, placeholder: "Add a band", class: "border rounded px-3 py-2 flex-1" %>
-    <%= f.submit "Add", class: "bg-black text-white rounded px-3 py-2" %>
-  <% end %>
+  </div>
 </section>

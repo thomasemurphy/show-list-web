@@ -14,9 +14,9 @@ class ShowsController < ApplicationController
       redirect_to dashboard_path, alert: "Enter a band name to check." and return
     end
 
-    slug = SeatgeekClient.resolve(@band)
-    @events = slug ? SeatgeekClient.shows(slug, @band, @zip) : []
-    @not_found = slug.nil?
+    resolved = SeatgeekClient.resolve(@band)
+    @events = resolved ? SeatgeekClient.shows(resolved[:slug], @band, @zip) : []
+    @not_found = resolved.nil?
     ShowCache.store(@band, @zip, @events)
 
     if turbo_frame_request?

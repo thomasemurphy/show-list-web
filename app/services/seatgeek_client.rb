@@ -11,10 +11,11 @@ class SeatgeekClient
   BASE_URL = ENV.fetch("SHOWLIST_API_BASE_URL")
   SHARED_SECRET = ENV.fetch("SHOWLIST_API_SHARED_SECRET")
 
-  # Returns the SeatGeek performer slug for band_name, or nil if not found.
+  # Returns { slug:, name: } for band_name (name is SeatGeek's canonical
+  # spelling/casing for the act), or nil if not found.
   def self.resolve(band_name)
     body = get("/api/bands/resolve", name: band_name)
-    body["ok"] ? body["slug"] : nil
+    body["ok"] ? { slug: body["slug"], name: body["name"] } : nil
   end
 
   # Returns an array of event hashes for an already-resolved slug near zip_code.

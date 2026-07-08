@@ -1,19 +1,19 @@
-<h1 class="text-2xl font-semibold mb-6"><%= @band %> near <%= @zip %></h1>
+<h1 class="text-2xl font-semibold mb-6 text-gray-900"><%= @band %> near <%= @zip %></h1>
 
 <% if @not_found %>
-  <p class="text-gray-600 mb-4">Couldn't find <%= @band %> on SeatGeek — check the spelling?</p>
+  <p class="text-gray-500 mb-4">Couldn't find <%= @band %> on SeatGeek — check the spelling?</p>
 <% elsif @events.empty? %>
-  <p class="text-gray-600 mb-4">No upcoming shows found nearby.</p>
+  <p class="text-gray-500 mb-4">No upcoming shows found nearby.</p>
 <% else %>
   <ul class="flex flex-col gap-2 mb-4">
     <% @events.each do |event| %>
-      <li class="border rounded px-3 py-2">
-        <div class="font-medium"><%= event["title"] %></div>
-        <div class="text-sm text-gray-600"><%= event["datetime_local"] %> — <%= event["venue_name"] %>, <%= event["venue_city"] %></div>
-        <%= link_to "Tickets", event["url"], class: "text-sm underline", target: "_blank", rel: "noopener" %>
+      <li class="card px-4 py-3">
+        <div class="font-medium text-gray-900"><%= event["title"] %></div>
+        <div class="text-sm text-gray-500 mb-1"><%= event["datetime_local"] %> — <%= event["venue_name"] %>, <%= event["venue_city"] %></div>
+        <%= link_to "Tickets", event["url"], class: "btn-text-muted", target: "_blank", rel: "noopener" %>
       </li>
     <% end %>
   </ul>
 <% end %>
 
-<%= link_to "Back to dashboard", dashboard_path, class: "underline" %>
+<%= link_to "Back to dashboard", dashboard_path, class: "btn-text-muted" %>
