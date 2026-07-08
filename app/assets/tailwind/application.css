@@ -27,6 +27,10 @@
            hover:bg-gray-100 hover:text-gray-800 transition-colors;
   }
 
+  turbo-frame.is-refreshing .refresh-icon {
+    @apply animate-spin;
+  }
+
   .input-field {
     @apply border border-gray-200 rounded-lg px-3 py-2 bg-white text-sm
            focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400
