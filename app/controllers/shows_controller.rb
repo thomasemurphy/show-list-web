@@ -8,10 +8,10 @@ class ShowsController < ApplicationController
     @zip = params[:zip].to_s.strip
 
     if @zip.blank?
-      redirect_to dashboard_path, alert: "Choose a zip code first." and return
+      redirect_to dashboard_path, alert: "Choose a zip code first" and return
     end
     if @band.blank?
-      redirect_to dashboard_path, alert: "Enter a band name to check." and return
+      redirect_to dashboard_path, alert: "Enter a band name to check" and return
     end
 
     result = ShowChecker.check(@band, @zip)

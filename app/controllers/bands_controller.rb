@@ -8,7 +8,7 @@ class BandsController < ApplicationController
   def create
     name = params[:name].to_s.strip
     if name.blank?
-      redirect_to dashboard_path, alert: "Enter a band name." and return
+      redirect_to dashboard_path, alert: "Enter a band name" and return
     end
 
     resolved = SeatgeekClient.resolve(name)
@@ -17,12 +17,12 @@ class BandsController < ApplicationController
     else
       current_user.add_band(resolved[:name])
       current_user.zips.each { |zip| ShowChecker.check_resolved(resolved, resolved[:name], zip) }
-      redirect_to dashboard_path, notice: "Now tracking #{resolved[:name]}."
+      redirect_to dashboard_path, notice: "Now tracking #{resolved[:name]}"
     end
   end
 
   def destroy
     current_user.remove_band(params[:name])
-    redirect_to dashboard_path, notice: "Stopped tracking #{params[:name]}."
+    redirect_to dashboard_path, notice: "Stopped tracking #{params[:name]}"
   end
 end

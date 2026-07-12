@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
   def create
     phone = PhoneNumber.normalize(params[:phone])
     if phone.nil?
-      flash.now[:alert] = "Enter a valid 10-digit US phone number."
+      flash.now[:alert] = "Enter a valid 10-digit US phone number"
       return render :new, status: :unprocessable_entity
     end
 
@@ -14,7 +14,7 @@ class SessionsController < ApplicationController
       session[:pending_phone] = phone
       redirect_to login_verify_path
     else
-      flash.now[:alert] = "Couldn't send a code to that number. Try again."
+      flash.now[:alert] = "Couldn't send a code to that number. Try again"
       render :new, status: :unprocessable_entity
     end
   end
@@ -35,16 +35,16 @@ class SessionsController < ApplicationController
       session.delete(:pending_phone)
       session[:phone] = phone
       remember_me if params[:stay_logged_in] == "1"
-      redirect_to dashboard_path, notice: "Logged in."
+      redirect_to dashboard_path, notice: "Logged in"
     else
-      flash.now[:alert] = "Incorrect or expired code."
+      flash.now[:alert] = "Incorrect or expired code"
       render :new_code, status: :unprocessable_entity
     end
   end
 
   def destroy
     reset_session
-    redirect_to login_path, notice: "Logged out."
+    redirect_to login_path, notice: "Logged out"
   end
 
   # Password login form.
@@ -59,9 +59,9 @@ class SessionsController < ApplicationController
     if user&.has_password? && user.authenticate(params[:password])
       session[:phone] = phone
       remember_me if params[:stay_logged_in] == "1"
-      redirect_to dashboard_path, notice: "Logged in."
+      redirect_to dashboard_path, notice: "Logged in"
     else
-      flash.now[:alert] = "Incorrect phone number or password."
+      flash.now[:alert] = "Incorrect phone number or password"
       render :new_password, status: :unprocessable_entity
     end
   end

@@ -54,7 +54,12 @@
     <% end %>
     <main class="container mx-auto mt-16 px-5 max-w-md">
       <% flash.each do |type, message| %>
-        <p class="mb-4 px-3 py-2 rounded-lg border <%= type == "alert" ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900" : "bg-green-50 text-green-700 border-green-100 dark:bg-green-950/40 dark:text-green-300 dark:border-green-900" %>"><%= message %></p>
+        <div data-controller="flash" class="mb-4 px-3 py-2 rounded-lg border flex items-center justify-between gap-2 <%= type == "alert" ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900" : "bg-green-50 text-green-700 border-green-100 dark:bg-green-950/40 dark:text-green-300 dark:border-green-900" %>">
+          <p><%= message %></p>
+          <button type="button" data-action="click->flash#dismiss" class="shrink-0 opacity-70 hover:opacity-100" aria-label="Dismiss">
+            <%= render "shared/x_icon", size: "size-3.5" %>
+          </button>
+        </div>
       <% end %>
       <%= yield %>
     </main>
