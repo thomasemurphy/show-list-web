@@ -11,14 +11,17 @@ Rails.application.routes.draw do
 
   root "dashboard#show"
 
-  get    "login",        to: "sessions#new"
-  post   "login",        to: "sessions#create"
-  get    "login/verify", to: "sessions#new_code", as: :login_verify
-  post   "login/verify", to: "sessions#verify_code"
-  delete "logout",       to: "sessions#destroy"
+  get    "login",          to: "sessions#new"
+  post   "login",          to: "sessions#create"
+  get    "login/verify",   to: "sessions#new_code", as: :login_verify
+  post   "login/verify",   to: "sessions#verify_code"
+  get    "login/password", to: "sessions#new_password", as: :login_password
+  post   "login/password", to: "sessions#create_with_password"
+  delete "logout",         to: "sessions#destroy"
 
-  get    "dashboard",   to: "dashboard#show"
-  get    "settings",    to: "settings#show"
+  get    "dashboard",       to: "dashboard#show"
+  get    "settings",        to: "settings#show"
+  patch  "settings/password", to: "settings#update_password", as: :settings_password
   post   "zips",        to: "zips#create"
   delete "zips/:code",  to: "zips#destroy", constraints: { code: /\d{5}/ }, as: :zip
   post   "bands",       to: "bands#create"

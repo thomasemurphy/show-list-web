@@ -8,10 +8,30 @@
   </dl>
 </section>
 
-<section class="card p-5">
+<section class="card p-5 mb-4">
   <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Notifications</h2>
   <p class="text-sm text-gray-600 dark:text-gray-300">
     You're currently notified by text message (SMS). Choosing what you get texted about,
     and additional notification channels, are coming soon.
   </p>
+</section>
+
+<section class="card p-5">
+  <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Password</h2>
+  <%= form_with url: settings_password_path, method: :patch, class: "flex flex-col gap-3" do |f| %>
+    <% if current_user.has_password? %>
+      <%= f.label :current_password, "Current password", class: "font-medium text-sm text-gray-700 dark:text-gray-300" %>
+      <%= f.password_field :current_password, required: true, class: "input-field" %>
+    <% else %>
+      <p class="text-sm text-gray-600 dark:text-gray-300">
+        Set a password so you can log in without waiting for a text — handy when
+        you don't have signal (e.g. on a plane).
+      </p>
+    <% end %>
+    <%= f.label :new_password, current_user.has_password? ? "New password" : "Password", class: "font-medium text-sm text-gray-700 dark:text-gray-300" %>
+    <%= f.password_field :new_password, required: true, class: "input-field" %>
+    <%= f.label :new_password_confirmation, "Confirm password", class: "font-medium text-sm text-gray-700 dark:text-gray-300" %>
+    <%= f.password_field :new_password_confirmation, required: true, class: "input-field" %>
+    <%= f.submit current_user.has_password? ? "Update password" : "Set password", class: "btn-primary py-2" %>
+  <% end %>
 </section>

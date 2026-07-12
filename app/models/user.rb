@@ -3,7 +3,11 @@
 # stay identical across both systems since they read/write the same doc.
 # Not ActiveRecord — there is no SQL database in this app.
 class User
+  include ActiveModel::SecurePassword
+
   attr_reader :phone
+
+  has_secure_password validations: false
 
   def self.collection
     FIRESTORE.col("users")
@@ -34,6 +38,19 @@ class User
   def zips = @data[:zips] || []
   def channel = @data[:channel] || "sms"
   def bands = @data[:bands] || []
+
+  def password_digest = @data[:password_digest]
+
+  def password_digest=(digest)
+    @data[:password_digest] = digest
+  end
+
+  def has_password? = password_digest.present?
+
+  def set_password(new_password)
+    self.password = new_password
+    doc_ref.set({ password_digest: password_digest }, merge: true)
+  end
 
   def add_band(name)
     doc_ref.set({ bands: FIRESTORE.field_array_union(name) }, merge: true)

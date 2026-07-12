@@ -47,6 +47,25 @@ class SessionsController < ApplicationController
     redirect_to login_path, notice: "Logged out."
   end
 
+  # Password login form.
+  def new_password
+  end
+
+  # Password login submit.
+  def create_with_password
+    phone = PhoneNumber.normalize(params[:phone])
+    user = phone && User.find(phone)
+
+    if user&.has_password? && user.authenticate(params[:password])
+      session[:phone] = phone
+      remember_me if params[:stay_logged_in] == "1"
+      redirect_to dashboard_path, notice: "Logged in."
+    else
+      flash.now[:alert] = "Incorrect phone number or password."
+      render :new_password, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def remember_me
