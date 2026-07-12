@@ -14,10 +14,9 @@ class ShowsController < ApplicationController
       redirect_to dashboard_path, alert: "Enter a band name to check." and return
     end
 
-    resolved = SeatgeekClient.resolve(@band)
-    @events = resolved ? SeatgeekClient.shows(resolved[:slug], @band, @zip) : []
-    @not_found = resolved.nil?
-    ShowCache.store(@band, @zip, @events)
+    result = ShowChecker.check(@band, @zip)
+    @events = result[:events]
+    @not_found = result[:not_found]
 
     if turbo_frame_request?
       render partial: "shows/cell",

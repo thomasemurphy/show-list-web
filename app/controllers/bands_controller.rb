@@ -16,6 +16,7 @@ class BandsController < ApplicationController
       redirect_to dashboard_path, alert: "Couldn't find #{name} on SeatGeek — check the spelling?"
     else
       current_user.add_band(resolved[:name])
+      current_user.zips.each { |zip| ShowChecker.check_resolved(resolved, resolved[:name], zip) }
       redirect_to dashboard_path, notice: "Now tracking #{resolved[:name]}."
     end
   end

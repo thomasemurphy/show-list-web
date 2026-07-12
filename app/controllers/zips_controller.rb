@@ -6,6 +6,7 @@ class ZipsController < ApplicationController
     zip_code = params[:code].to_s
     if zip_code.match?(/\A\d{5}\z/)
       current_user.add_zip(zip_code)
+      current_user.bands.each { |band| ShowChecker.check(band, zip_code) }
       redirect_to dashboard_path, notice: "Zip code added."
     else
       redirect_to dashboard_path, alert: "Enter a valid 5-digit zip code."
