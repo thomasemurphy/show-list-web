@@ -23,8 +23,10 @@ Rails.application.routes.draw do
   get    "settings",        to: "settings#show"
   patch  "settings/password", to: "settings#update_password", as: :settings_password
   post   "zips",        to: "zips#create"
+  patch  "zips/reorder", to: "zips#reorder", as: :reorder_zips
   delete "zips/:code",  to: "zips#destroy", constraints: { code: /\d{5}/ }, as: :zip
   post   "bands",       to: "bands#create"
+  patch  "bands/reorder", to: "bands#reorder", as: :reorder_bands
   delete "bands/:name", to: "bands#destroy", constraints: { name: /[^\/]+/ }, as: :band
 
   get "shows", to: "shows#index"

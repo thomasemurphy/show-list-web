@@ -72,6 +72,21 @@ class User
     @data[:zips] = zips - [zip_code]
   end
 
+  # Persists a drag-and-drop reorder. Ignores anything in new_order that
+  # isn't currently tracked, and appends anything missing from new_order, so
+  # a stale or tampered client payload can't drop or duplicate entries.
+  def reorder_bands(new_order)
+    ordered = (new_order & bands) | bands
+    doc_ref.set({ bands: ordered }, merge: true)
+    @data[:bands] = ordered
+  end
+
+  def reorder_zips(new_order)
+    ordered = (new_order & zips) | zips
+    doc_ref.set({ zips: ordered }, merge: true)
+    @data[:zips] = ordered
+  end
+
   private
 
   def doc_ref

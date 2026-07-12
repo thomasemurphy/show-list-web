@@ -25,4 +25,9 @@ class BandsController < ApplicationController
     current_user.remove_band(params[:name])
     redirect_to dashboard_path, notice: "Stopped tracking #{params[:name]}"
   end
+
+  def reorder
+    current_user.reorder_bands(Array(params[:order]))
+    head :ok
+  end
 end

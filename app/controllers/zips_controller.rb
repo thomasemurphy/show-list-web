@@ -17,4 +17,9 @@ class ZipsController < ApplicationController
     current_user.remove_zip(params[:code])
     redirect_to dashboard_path, notice: "Removed zip code #{params[:code]}"
   end
+
+  def reorder
+    current_user.reorder_zips(Array(params[:order]))
+    head :ok
+  end
 end
