@@ -32,9 +32,9 @@ class SessionsController < ApplicationController
     end
 
     if TwilioVerifyClient.check_code(phone, params[:code])
-      request.session_options[:expire_after] = 1.year if params[:stay_logged_in] == "1"
       session.delete(:pending_phone)
       session[:phone] = phone
+      remember_me if params[:stay_logged_in] == "1"
       redirect_to dashboard_path, notice: "Logged in."
     else
       flash.now[:alert] = "Incorrect or expired code."
@@ -45,5 +45,12 @@ class SessionsController < ApplicationController
   def destroy
     reset_session
     redirect_to login_path, notice: "Logged out."
+  end
+
+  private
+
+  def remember_me
+    session[:persistent] = true
+    request.session_options[:expire_after] = 1.year
   end
 end
