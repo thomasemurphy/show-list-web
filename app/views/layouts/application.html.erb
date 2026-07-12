@@ -37,16 +37,17 @@
     <% if logged_in? %>
       <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
         <div class="container mx-auto px-5 max-w-md flex items-center justify-between h-14">
-          <div class="flex items-center gap-4">
-            <%= link_to "My Shows", dashboard_path, class: "text-sm font-semibold text-gray-900 dark:text-gray-100" %>
-            <%= link_to "Settings", settings_path, class: "nav-link" %>
-          </div>
-          <div class="flex items-center gap-3">
+          <%= link_to "My Shows", dashboard_path, class: "text-sm font-semibold text-gray-900 dark:text-gray-100" %>
+          <div class="flex items-center gap-1">
             <button type="button" data-controller="theme" data-action="click->theme#cycle"
-                    class="btn-text-muted text-sm px-2 py-1" aria-label="Toggle color theme">
-              <span data-theme-target="label">Theme</span>
+                    class="btn-text-muted inline-flex items-center justify-center p-1.5" aria-label="Toggle color theme">
+              <%= render "shared/sun_icon", target: "lightIcon" %>
+              <%= render "shared/moon_icon", target: "darkIcon", size: "size-4 hidden" %>
+              <%= render "shared/monitor_icon", target: "systemIcon", size: "size-4 hidden" %>
             </button>
-            <%= button_to "Log out", logout_path, method: :delete, class: "btn-text-muted text-sm px-3 py-1" %>
+            <%= link_to settings_path, class: "btn-text-muted inline-flex items-center justify-center p-1.5", aria: { label: "Settings" } do %>
+              <%= render "shared/gear_icon" %>
+            <% end %>
           </div>
         </div>
       </nav>
