@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   delete "logout",       to: "sessions#destroy"
 
   get    "dashboard",   to: "dashboard#show"
+  get    "settings",    to: "settings#show"
   post   "zips",        to: "zips#create"
   delete "zips/:code",  to: "zips#destroy", constraints: { code: /\d{5}/ }, as: :zip
   post   "bands",       to: "bands#create"

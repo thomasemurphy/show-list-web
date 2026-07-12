@@ -1,7 +1,7 @@
-<h1 class="text-2xl font-semibold mb-6">Log in to showlist</h1>
+<h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Log in to showlist</h1>
 
 <%= form_with url: login_path, method: :post, class: "card p-5 flex flex-col gap-3" do |f| %>
-  <%= f.label :phone, "Phone number", class: "font-medium text-sm text-gray-700" %>
+  <%= f.label :phone, "Phone number", class: "font-medium text-sm text-gray-700 dark:text-gray-300" %>
   <%= f.telephone_field :phone, placeholder: "(555) 123-4567", required: true,
         class: "input-field" %>
   <%= f.submit "Text me a code", class: "btn-primary py-2" %>

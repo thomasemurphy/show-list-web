@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <%= javascript_tag nonce: true do %>
+      (function () {
+        var STORAGE_KEY = "theme";
+        var stored = localStorage.getItem(STORAGE_KEY) || "system";
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var isDark = stored === "dark" || (stored === "system" && prefersDark);
+        document.documentElement.classList.toggle("dark", isDark);
+      })();
+    <% end %>
+
     <title><%= content_for(:title) || "showlist" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,10 +33,27 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gradient-to-b from-gray-50 to-gray-200 min-h-screen">
+  <body class="bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-950 min-h-screen">
+    <% if logged_in? %>
+      <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
+        <div class="container mx-auto px-5 max-w-md flex items-center justify-between h-14">
+          <div class="flex items-center gap-4">
+            <%= link_to "My Shows", dashboard_path, class: "text-sm font-semibold text-gray-900 dark:text-gray-100" %>
+            <%= link_to "Settings", settings_path, class: "nav-link" %>
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="button" data-controller="theme" data-action="click->theme#cycle"
+                    class="btn-text-muted text-sm px-2 py-1" aria-label="Toggle color theme">
+              <span data-theme-target="label">Theme</span>
+            </button>
+            <%= button_to "Log out", logout_path, method: :delete, class: "btn-text-muted text-sm px-3 py-1" %>
+          </div>
+        </div>
+      </nav>
+    <% end %>
     <main class="container mx-auto mt-16 px-5 max-w-md">
       <% flash.each do |type, message| %>
-        <p class="mb-4 px-3 py-2 rounded-lg border <%= type == "alert" ? "bg-red-50 text-red-700 border-red-100" : "bg-green-50 text-green-700 border-green-100" %>"><%= message %></p>
+        <p class="mb-4 px-3 py-2 rounded-lg border <%= type == "alert" ? "bg-red-50 text-red-700 border-red-100 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900" : "bg-green-50 text-green-700 border-green-100 dark:bg-green-950/40 dark:text-green-300 dark:border-green-900" %>"><%= message %></p>
       <% end %>
       <%= yield %>
     </main>

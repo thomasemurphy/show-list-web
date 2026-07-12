@@ -1,0 +1,17 @@
+<h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Settings</h1>
+
+<section class="card p-5 mb-4">
+  <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Account</h2>
+  <dl class="flex flex-col gap-1">
+    <dt class="text-xs text-gray-500 dark:text-gray-400">Phone number</dt>
+    <dd class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= current_user.phone %></dd>
+  </dl>
+</section>
+
+<section class="card p-5">
+  <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Notifications</h2>
+  <p class="text-sm text-gray-600 dark:text-gray-300">
+    You're currently notified by text message (SMS). Choosing what you get texted about,
+    and additional notification channels, are coming soon.
+  </p>
+</section>
