@@ -5,7 +5,7 @@
       <% if local_assigns[:not_found] %>
         <div class="text-xs text-gray-400">Not found on SeatGeek</div>
       <% elsif events.present? %>
-        <%= link_to shows_path(band: band, zip: zip), data: { turbo_frame: "_top" }, class: "block text-xs font-medium text-gray-700 hover:text-gray-900 hover:underline transition-colors" do %>
+        <%= link_to shows_path(band: band, zip: zip), data: { turbo_frame: "_top" }, class: "block text-sm font-semibold text-green-600 hover:text-green-700 hover:underline transition-colors dark:text-green-400 dark:hover:text-green-300" do %>
           <%= events.map { |event| (Date.parse(event["datetime_local"]).strftime("%b %-d") rescue event["datetime_local"]) }.join(", ") %>
         <% end %>
       <% else %>
