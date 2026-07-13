@@ -10,10 +10,21 @@
 
 <section class="card p-5 mb-4">
   <h2 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Notifications</h2>
-  <p class="text-sm text-gray-600 dark:text-gray-300">
-    You're currently notified by text message (SMS). Choosing what you get texted about,
-    and additional notification channels, are coming soon.
-  </p>
+  <label class="flex items-center justify-between gap-4 cursor-pointer">
+    <span class="text-sm text-gray-700 dark:text-gray-300">
+      Send me SMS messages when my bands announce shows near me
+    </span>
+    <span class="relative inline-flex shrink-0"
+          data-controller="notification-toggle"
+          data-notification-toggle-url-value="<%= settings_notifications_path %>">
+      <input type="checkbox"
+             <%= "checked" if current_user.sms_alerts_enabled? %>
+             data-action="change->notification-toggle#toggle"
+             class="peer sr-only">
+      <span class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer-checked:bg-green-600 transition-colors"></span>
+      <span class="absolute left-0.5 top-0.5 size-5 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5"></span>
+    </span>
+  </label>
 </section>
 
 <section class="card p-5 mb-4">

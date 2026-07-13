@@ -18,4 +18,9 @@ class SettingsController < ApplicationController
     current_user.set_password(params[:new_password])
     redirect_to settings_path, notice: "Password updated"
   end
+
+  def update_notifications
+    current_user.sms_alerts_enabled = ActiveModel::Type::Boolean.new.cast(params[:enabled])
+    head :ok
+  end
 end

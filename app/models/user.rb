@@ -39,6 +39,15 @@ class User
   def channel = @data[:channel] || "sms"
   def bands = @data[:bands] || []
 
+  # Absent means the account predates this setting or has never toggled it —
+  # default to enabled so existing users keep getting alerts they already had.
+  def sms_alerts_enabled? = @data.fetch(:sms_alerts_enabled, true)
+
+  def sms_alerts_enabled=(enabled)
+    doc_ref.set({ sms_alerts_enabled: enabled }, merge: true)
+    @data[:sms_alerts_enabled] = enabled
+  end
+
   def password_digest = @data[:password_digest]
 
   def password_digest=(digest)

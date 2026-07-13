@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   get    "dashboard",       to: "dashboard#show"
   get    "settings",        to: "settings#show"
   patch  "settings/password", to: "settings#update_password", as: :settings_password
+  patch  "settings/notifications", to: "settings#update_notifications", as: :settings_notifications
   post   "zips",        to: "zips#create"
   patch  "zips/reorder", to: "zips#reorder", as: :reorder_zips
   delete "zips/:code",  to: "zips#destroy", constraints: { code: /\d{5}/ }, as: :zip
