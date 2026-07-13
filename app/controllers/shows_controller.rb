@@ -14,9 +14,15 @@ class ShowsController < ApplicationController
       redirect_to dashboard_path, alert: "Enter a band name to check" and return
     end
 
-    result = ShowChecker.check(@band, @zip)
-    @events = result[:events]
-    @not_found = result[:not_found]
+    cached = ShowCache.find(@band, @zip) unless params[:refresh]
+    if cached
+      @events = cached[:events]
+      @not_found = false
+    else
+      result = ShowChecker.check(@band, @zip)
+      @events = result[:events]
+      @not_found = result[:not_found]
+    end
 
     if turbo_frame_request?
       render partial: "shows/cell",
