@@ -1,5 +1,9 @@
 <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Log in to showlist</h1>
 
+<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+  showlist tracks the artists you follow and texts you when they're playing near your zip code
+</p>
+
 <%= form_with url: login_path, method: :post, class: "card p-5 flex flex-col gap-3" do |f| %>
   <%= f.label :phone, "Phone number", class: "font-medium text-sm text-gray-700 dark:text-gray-300" %>
   <%= f.telephone_field :phone, placeholder: "(555) 123-4567", required: true,
@@ -8,5 +12,5 @@
 <% end %>
 
 <p class="mt-4 text-sm text-gray-600 dark:text-gray-400">
-  <%= link_to "Log in with a password instead", login_password_path, class: "nav-link" %>
+  <%= link_to "Log in with password instead (returning users only)", login_password_path, class: "nav-link" %>
 </p>
