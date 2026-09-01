@@ -12,10 +12,31 @@ class SeatgeekClient
   SHARED_SECRET = ENV.fetch("SHOWLIST_API_SHARED_SECRET")
 
   # Returns { slug:, name: } for band_name (name is SeatGeek's canonical
-  # spelling/casing for the act), or nil if not found.
+  # spelling/casing for the act), or nil if not confidently matched (includes
+  # the ambiguous case — callers that don't need to disambiguate treat "not
+  # sure yet" the same as "not found"). For the interactive add-band flow,
+  # which needs to tell an ambiguous match apart from a flat miss, use
+  # resolve_interactive instead.
   def self.resolve(band_name)
+    result = resolve_interactive(band_name)
+    result[:status] == :confident ? { slug: result[:slug], name: result[:name] } : nil
+  end
+
+  # Returns one of:
+  #   { status: :confident, slug:, name: }
+  #   { status: :ambiguous, candidates: [{ slug:, name:, score: }, ...] }
+  #   { status: :not_found }
+  def self.resolve_interactive(band_name)
     body = get("/api/bands/resolve", name: band_name)
-    body["ok"] ? { slug: body["slug"], name: body["name"] } : nil
+    case body["status"]
+    when "confident"
+      { status: :confident, slug: body["slug"], name: body["name"] }
+    when "ambiguous"
+      candidates = (body["candidates"] || []).map { |c| { slug: c["slug"], name: c["name"], score: c["score"] } }
+      { status: :ambiguous, candidates: candidates }
+    else
+      { status: :not_found }
+    end
   end
 
   # Returns an array of event hashes for an already-resolved slug near zip_code.

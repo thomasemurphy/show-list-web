@@ -18,6 +18,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# Keep scroll position when a form submission re-renders the current
+        page instead of redirecting (e.g. BandsController#create's ambiguous
+        picker) — otherwise Turbo jumps to the top by default. %>
+    <meta name="turbo-refresh-scroll" content="preserve">
 
     <%= yield :head %>
 

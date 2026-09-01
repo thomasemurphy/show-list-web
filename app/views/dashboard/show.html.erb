@@ -54,13 +54,8 @@
           </tr>
         <% end %>
         <tr>
-          <th class="px-3 py-3" data-controller="reveal">
-            <button type="button" data-reveal-target="button" data-action="click->reveal#show"
-                    class="btn-primary">Add band</button>
-            <%= form_with url: bands_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
-              <%= f.text_field :name, placeholder: "Add a band", class: "input-field w-24 px-2 py-1", data: { reveal_target: "input" } %>
-              <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
-            <% end %>
+          <th class="px-3 py-3">
+            <%= render "bands/add_control", query: @band_query, candidates: @band_candidates %>
           </th>
           <% current_user.zips.each do %>
             <td class="px-3 py-3"></td>

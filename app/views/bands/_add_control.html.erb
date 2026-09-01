@@ -1,0 +1,36 @@
+<%# candidates/query are only present when this re-renders after an ambiguous
+    SeatGeek match (see BandsController#create) — otherwise plain "Add band". %>
+<div class="relative inline-block" data-controller="reveal <%= "popover" if candidates.present? %>">
+  <button type="button" data-reveal-target="button" data-action="click->reveal#show"
+          class="btn-primary <%= "hidden" if candidates.present? %>">Add band</button>
+  <%= form_with url: bands_path, method: :post,
+                class: candidates.present? ? "flex gap-1" : "hidden flex gap-1",
+                data: { reveal_target: "form" } do |f| %>
+    <%= f.text_field :name, value: (query if candidates.present?), placeholder: "Add a band",
+                      class: "input-field w-24 px-2 py-1",
+                      data: { reveal_target: "input", popover_target: "input" } %>
+    <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+  <% end %>
+
+  <% if candidates.present? %>
+    <div class="fixed card p-3 shadow-lg w-64 z-30 text-left" data-popover-target="box">
+      <div class="flex items-start justify-between gap-2 mb-2">
+        <p class="text-xs text-gray-500 dark:text-gray-400">Which "<%= query %>"?</p>
+        <button type="button" data-action="click->popover#close"
+                class="btn-text-muted shrink-0 p-0.5" aria-label="Dismiss">
+          <%= render "shared/x_icon", size: "size-3.5" %>
+        </button>
+      </div>
+      <div class="flex flex-col gap-1">
+        <% candidates.each do |candidate| %>
+          <%= button_to candidate[:name], bands_path, params: { name: candidate[:name] }, method: :post,
+                         class: "btn-primary w-full text-left text-xs px-2 py-1.5" %>
+        <% end %>
+        <button type="button" data-action="click->popover#clearAndClose"
+                class="btn-text-danger w-full text-center text-xs px-2 py-1.5 mt-1">
+          None of these
+        </button>
+      </div>
+    </div>
+  <% end %>
+</div>
