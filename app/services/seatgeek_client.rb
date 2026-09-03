@@ -24,18 +24,25 @@ class SeatgeekClient
 
   # Returns one of:
   #   { status: :confident, slug:, name: }
-  #   { status: :ambiguous, candidates: [{ slug:, name:, score: }, ...] }
-  #   { status: :not_found }
+  #   { status: :ambiguous, question:, candidates: [{ slug:, name:, description: }, ...] }
+  #   { status: :not_found, reason: }
+  #
+  # question, description and reason come from the webhook's Gemini resolver
+  # (shared/band_resolver.py), which searches Google and SeatGeek to work out
+  # who the user meant. They can be blank when it fell back to the plain
+  # SeatGeek matching, so treat them as optional flavor, not as required copy.
   def self.resolve_interactive(band_name)
     body = get("/api/bands/resolve", name: band_name)
     case body["status"]
     when "confident"
       { status: :confident, slug: body["slug"], name: body["name"] }
     when "ambiguous"
-      candidates = (body["candidates"] || []).map { |c| { slug: c["slug"], name: c["name"], score: c["score"] } }
-      { status: :ambiguous, candidates: candidates }
+      candidates = (body["candidates"] || []).map do |c|
+        { slug: c["slug"], name: c["name"], description: c["description"].presence }
+      end
+      { status: :ambiguous, question: body["question"].presence, candidates: candidates }
     else
-      { status: :not_found }
+      { status: :not_found, reason: body["explanation"].presence }
     end
   end
 
@@ -52,7 +59,11 @@ class SeatgeekClient
     req = Net::HTTP::Get.new(uri)
     req["X-Internal-Secret"] = SHARED_SECRET
 
-    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") { |http| http.request(req) }
+    # The resolve endpoint can run a multi-turn Gemini loop, so allow well over
+    # a normal API call — but stay under Heroku's 30s router timeout, so a
+    # stalled webhook surfaces as our own error page rather than an H12.
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https",
+                          open_timeout: 5, read_timeout: 25) { |http| http.request(req) }
     raise Error, "#{uri} → #{res.code}" unless res.is_a?(Net::HTTPSuccess) || res.is_a?(Net::HTTPBadRequest)
 
     JSON.parse(res.body)

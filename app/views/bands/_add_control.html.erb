@@ -1,5 +1,7 @@
-<%# candidates/query are only present when this re-renders after an ambiguous
-    SeatGeek match (see BandsController#create) — otherwise plain "Add band". %>
+<%# candidates/query/question are only present when this re-renders after an
+    ambiguous band match (see BandsController#create) — otherwise plain "Add
+    band". question is the resolver's own wording ("Which Chase?") and is
+    blank when it fell back to plain SeatGeek matching. %>
 <div class="relative inline-block" data-controller="reveal <%= "popover" if candidates.present? %>">
   <button type="button" data-reveal-target="button" data-action="click->reveal#show"
           class="btn-primary <%= "hidden" if candidates.present? %>">Add band</button>
@@ -9,13 +11,16 @@
     <%= f.text_field :name, value: (query if candidates.present?), placeholder: "Add a band",
                       class: "input-field w-24 px-2 py-1",
                       data: { reveal_target: "input", popover_target: "input" } %>
-    <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+    <%# Looking the band up can take a few seconds — it searches the web when
+        the name isn't an outright match — so the button says what's going on. %>
+    <%= f.submit "Add", class: "btn-primary px-2 py-1",
+                 data: { turbo_submits_with: "Checking…" } %>
   <% end %>
 
   <% if candidates.present? %>
     <div class="fixed card p-3 shadow-lg w-64 z-30 text-left" data-popover-target="box">
       <div class="flex items-start justify-between gap-2 mb-2">
-        <p class="text-xs text-gray-500 dark:text-gray-400">Which "<%= query %>"?</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400"><%= question.presence || "Which \"#{query}\"?" %></p>
         <button type="button" data-action="click->popover#close"
                 class="btn-text-muted shrink-0 p-0.5" aria-label="Dismiss">
           <%= render "shared/x_icon", size: "size-3.5" %>
@@ -23,8 +28,14 @@
       </div>
       <div class="flex flex-col gap-1">
         <% candidates.each do |candidate| %>
-          <%= button_to candidate[:name], bands_path, params: { name: candidate[:name] }, method: :post,
-                         class: "btn-primary w-full text-left text-xs px-2 py-1.5" %>
+          <%= button_to bands_path, params: { name: candidate[:name] }, method: :post,
+                         class: "btn-primary w-full text-left text-xs px-2 py-1.5",
+                         data: { turbo_submits_with: "Adding…" } do %>
+            <span class="block"><%= candidate[:name] %></span>
+            <% if candidate[:description].present? %>
+              <span class="block font-normal opacity-75 leading-snug mt-0.5"><%= candidate[:description] %></span>
+            <% end %>
+          <% end %>
         <% end %>
         <button type="button" data-action="click->popover#clearAndClose"
                 class="btn-text-danger w-full text-center text-xs px-2 py-1.5 mt-1">

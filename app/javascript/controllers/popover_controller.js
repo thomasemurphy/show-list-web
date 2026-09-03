@@ -8,17 +8,23 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["box", "input"]
 
+  // Gap between the box and its anchor, and the smallest gap it will leave
+  // against the edge of the viewport.
+  static MARGIN = 8
+
   connect() {
     this.reposition = this.reposition.bind(this)
     this.reposition()
-    this.scrollParent = this.element.closest(".overflow-x-auto")
     window.addEventListener("resize", this.reposition)
-    this.scrollParent?.addEventListener("scroll", this.reposition)
+    // Capture phase, so this also catches scrolling inside the table's
+    // overflow-x container — a fixed box doesn't move with either, so it has
+    // to be re-anchored by hand on both.
+    window.addEventListener("scroll", this.reposition, true)
   }
 
   disconnect() {
     window.removeEventListener("resize", this.reposition)
-    this.scrollParent?.removeEventListener("scroll", this.reposition)
+    window.removeEventListener("scroll", this.reposition, true)
   }
 
   reposition() {
@@ -28,9 +34,39 @@ export default class extends Controller {
     // measures the anchor, otherwise the anchor's own rect would include the
     // box's still-in-flow height and this would push the box down by its own
     // height on every reposition.
-    const rect = this.element.getBoundingClientRect()
-    this.boxTarget.style.top = `${rect.bottom + 8}px`
-    this.boxTarget.style.left = `${rect.left}px`
+    const anchor = this.element.getBoundingClientRect()
+    const box = this.boxTarget.getBoundingClientRect()
+    const margin = this.constructor.MARGIN
+
+    // Below the anchor by preference, above it when that would run off the
+    // bottom of the window. The Add band control is the last row of the
+    // dashboard table, so it's usually near the bottom of the page and the
+    // box — which can list four acts with a description each — usually
+    // doesn't fit under it. A fixed box can't be scrolled to, so this is the
+    // difference between seeing the choices and not.
+    const fitsBelow = anchor.bottom + margin + box.height <= window.innerHeight
+    const fitsAbove = anchor.top - margin - box.height >= 0
+    let top
+    if (fitsBelow) {
+      top = anchor.bottom + margin
+    } else if (fitsAbove) {
+      top = anchor.top - margin - box.height
+    } else {
+      // Taller than the window has room for either way (a short window, or a
+      // zoomed-in phone): sit as low as it can while staying fully visible.
+      top = Math.max(margin, window.innerHeight - margin - box.height)
+    }
+
+    // Left-aligned with the anchor, nudged back inside if that would hang the
+    // box off either edge — the anchor can sit at the far right of a wide,
+    // horizontally scrolled table.
+    const left = Math.min(
+      Math.max(margin, anchor.left),
+      Math.max(margin, window.innerWidth - margin - box.width)
+    )
+
+    this.boxTarget.style.top = `${top}px`
+    this.boxTarget.style.left = `${left}px`
   }
 
   close() {

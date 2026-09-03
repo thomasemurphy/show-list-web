@@ -6,14 +6,17 @@ class BandsController < ApplicationController
   # Also regularizes the name to SeatGeek's canonical spelling/casing (e.g.
   # "wednesday" -> "Wednesday") rather than storing whatever the user typed.
   #
-  # A query that doesn't clearly point to one act (e.g. "chase" scoring Chase
-  # B, Chase Matthew, and Chase Atlantic within a few hundredths of each
-  # other) re-renders the dashboard with a callout next to the Add band
-  # control instead of adding anything, so the user can pick the act they
-  # mean without leaving the page — mirroring the SMS bot's clarifying
-  # question in webhook/tools.py's add_band. Rendering "dashboard/show" here
-  # (rather than a separate view) is what keeps the rest of the page — the
-  # table, nav, everything — exactly as the user left it.
+  # A query that doesn't clearly point to one act (e.g. "chase", which could
+  # be Chase Atlantic, Chase Rice or Chase & Status) re-renders the dashboard
+  # with a callout next to the Add band control instead of adding anything, so
+  # the user can pick the act they mean without leaving the page — mirroring
+  # the SMS bot's clarifying question in webhook/tools.py's add_band. The
+  # question and the one-line description of each act come from the webhook's
+  # Gemini resolver, which only asks when the acts are genuinely different
+  # people; a mere misspelling ("mumford and sons") it settles itself.
+  # Rendering "dashboard/show" here (rather than a separate view) is what
+  # keeps the rest of the page — the table, nav, everything — exactly as the
+  # user left it.
   def create
     name = params[:name].to_s.strip
     if name.blank?
@@ -28,6 +31,7 @@ class BandsController < ApplicationController
       redirect_to dashboard_path, notice: "Now tracking #{result[:name]}"
     when :ambiguous
       @band_query = name
+      @band_question = result[:question]
       @band_candidates = result[:candidates]
       # Turbo requires a POST response to either redirect or carry a 4xx/5xx
       # status — a plain 200 render is treated as a bug ("Form responses must
@@ -36,7 +40,11 @@ class BandsController < ApplicationController
       # more from you" status and is what makes Turbo display the page.
       render "dashboard/show", status: :unprocessable_content
     else
-      redirect_to dashboard_path, alert: "Couldn't find #{name} on SeatGeek — check the spelling?"
+      # The resolver usually explains itself ("I couldn't find a listing for
+      # Radiohead on SeatGeek") — better than guessing it was a typo when it
+      # searched the web and concluded the act simply isn't listed.
+      redirect_to dashboard_path,
+                  alert: result[:reason] || "Couldn't find #{name} on SeatGeek — check the spelling?"
     end
   end
 
