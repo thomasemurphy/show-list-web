@@ -24,10 +24,22 @@ class BandsController < ApplicationController
   # ApplicationHelper::ANCHORED_FLASH_KEYS). Adding a band happens at the
   # bottom of a table that's often taller than the window, and a message
   # announcing itself off-screen above isn't a message.
+  #
+  # For the same reason these redirect back to the URL the form was submitted
+  # from rather than to dashboard_path. The dashboard answers at both "/" and
+  # "/dashboard", and Turbo only preserves scroll position (turbo-refresh-scroll
+  # in the layout) for a visit it considers a page refresh — which it decides
+  # by comparing the redirect target against the current URL *exactly*:
+  #
+  #   redirected && location.href === this.location.href ? "replace" : "advance"
+  #
+  # So adding a band from "/" and redirecting to "/dashboard" is an "advance",
+  # and Turbo scrolls to the top — dumping the user at the top of the page
+  # away from both the control they were using and the message meant for them.
   def create
     name = params[:name].to_s.strip
     if name.blank?
-      redirect_to dashboard_path, flash: { band_alert: "Enter a band name" } and return
+      redirect_back_or_to dashboard_path, flash: { band_alert: "Enter a band name" } and return
     end
 
     result = SeatgeekClient.resolve_interactive(name)
@@ -35,7 +47,7 @@ class BandsController < ApplicationController
     when :confident
       current_user.add_band(result[:name])
       current_user.zips.each { |zip| ShowChecker.check_resolved(result, result[:name], zip) }
-      redirect_to dashboard_path, flash: { band_notice: "Now tracking #{result[:name]}" }
+      redirect_back_or_to dashboard_path, flash: { band_notice: "Now tracking #{result[:name]}" }
     when :ambiguous
       @band_query = name
       @band_question = result[:question]
@@ -50,9 +62,9 @@ class BandsController < ApplicationController
       # The resolver usually explains itself ("I couldn't find a listing for
       # Radiohead on SeatGeek") — better than guessing it was a typo when it
       # searched the web and concluded the act simply isn't listed.
-      redirect_to dashboard_path,
-                  flash: { band_alert: result[:reason] ||
-                                       "Couldn't find #{name} on SeatGeek — check the spelling?" }
+      redirect_back_or_to dashboard_path,
+                          flash: { band_alert: result[:reason] ||
+                                               "Couldn't find #{name} on SeatGeek — check the spelling?" }
     end
   end
 
