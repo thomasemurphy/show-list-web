@@ -17,10 +17,17 @@ class BandsController < ApplicationController
   # Rendering "dashboard/show" here (rather than a separate view) is what
   # keeps the rest of the page — the table, nav, everything — exactly as the
   # user left it.
+  #
+  # Outcomes go in flash[:band_notice]/[:band_alert] rather than the usual
+  # notice/alert, which routes them to the popover next to the Add band
+  # control instead of the banner at the top of the page (see
+  # ApplicationHelper::ANCHORED_FLASH_KEYS). Adding a band happens at the
+  # bottom of a table that's often taller than the window, and a message
+  # announcing itself off-screen above isn't a message.
   def create
     name = params[:name].to_s.strip
     if name.blank?
-      redirect_to dashboard_path, alert: "Enter a band name" and return
+      redirect_to dashboard_path, flash: { band_alert: "Enter a band name" } and return
     end
 
     result = SeatgeekClient.resolve_interactive(name)
@@ -28,7 +35,7 @@ class BandsController < ApplicationController
     when :confident
       current_user.add_band(result[:name])
       current_user.zips.each { |zip| ShowChecker.check_resolved(result, result[:name], zip) }
-      redirect_to dashboard_path, notice: "Now tracking #{result[:name]}"
+      redirect_to dashboard_path, flash: { band_notice: "Now tracking #{result[:name]}" }
     when :ambiguous
       @band_query = name
       @band_question = result[:question]
@@ -44,7 +51,8 @@ class BandsController < ApplicationController
       # Radiohead on SeatGeek") — better than guessing it was a typo when it
       # searched the web and concluded the act simply isn't listed.
       redirect_to dashboard_path,
-                  alert: result[:reason] || "Couldn't find #{name} on SeatGeek — check the spelling?"
+                  flash: { band_alert: result[:reason] ||
+                                       "Couldn't find #{name} on SeatGeek — check the spelling?" }
     end
   end
 

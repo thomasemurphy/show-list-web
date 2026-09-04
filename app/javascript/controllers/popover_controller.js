@@ -8,6 +8,14 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["box", "input"]
 
+  // "below" (the default) hangs the box under the anchor, flipping above it
+  // when there's no room. "right" puts it beside the anchor instead, which is
+  // what the short add-a-band outcome message wants: the Add band control is
+  // the last row of the table, so anything stacked above it covers the band
+  // the user was just looking at, and anything below it runs off the page.
+  // Falls back to "below" when the window is too narrow to sit beside it.
+  static values = { placement: { type: String, default: "below" } }
+
   // Gap between the box and its anchor, and the smallest gap it will leave
   // against the edge of the viewport.
   static MARGIN = 8
@@ -38,35 +46,30 @@ export default class extends Controller {
     const box = this.boxTarget.getBoundingClientRect()
     const margin = this.constructor.MARGIN
 
-    // Below the anchor by preference, above it when that would run off the
-    // bottom of the window. The Add band control is the last row of the
-    // dashboard table, so it's usually near the bottom of the page and the
-    // box — which can list four acts with a description each — usually
-    // doesn't fit under it. A fixed box can't be scrolled to, so this is the
-    // difference between seeing the choices and not.
-    const fitsBelow = anchor.bottom + margin + box.height <= window.innerHeight
-    const fitsAbove = anchor.top - margin - box.height >= 0
-    let top
-    if (fitsBelow) {
-      top = anchor.bottom + margin
-    } else if (fitsAbove) {
-      top = anchor.top - margin - box.height
+    let top, left
+    if (this.placementValue === "right" &&
+        anchor.right + margin + box.width + margin <= window.innerWidth) {
+      // Beside the anchor, centered on it.
+      top = anchor.top + anchor.height / 2 - box.height / 2
+      left = anchor.right + margin
     } else {
-      // Taller than the window has room for either way (a short window, or a
-      // zoomed-in phone): sit as low as it can while staying fully visible.
-      top = Math.max(margin, window.innerHeight - margin - box.height)
+      // Below the anchor by preference, above it when that would run off the
+      // bottom of the window. The box — which can list four acts with a
+      // description each — often doesn't fit under a control this close to
+      // the bottom of the page, and a fixed box can't be scrolled to, so the
+      // flip is the difference between seeing the choices and not.
+      const fitsBelow = anchor.bottom + margin + box.height <= window.innerHeight
+      top = fitsBelow ? anchor.bottom + margin : anchor.top - margin - box.height
+      left = anchor.left
     }
 
-    // Left-aligned with the anchor, nudged back inside if that would hang the
-    // box off either edge — the anchor can sit at the far right of a wide,
-    // horizontally scrolled table.
-    const left = Math.min(
-      Math.max(margin, anchor.left),
-      Math.max(margin, window.innerWidth - margin - box.width)
-    )
-
-    this.boxTarget.style.top = `${top}px`
-    this.boxTarget.style.left = `${left}px`
+    // However it was placed, keep it on screen — the box is worth seeing even
+    // when its anchor isn't, which happens when the box is taller than the
+    // window has room for, when a redirect lands the page back at the top
+    // with the Add band control scrolled off the bottom, or when the anchor
+    // sits at the far right of a wide, horizontally scrolled table.
+    this.boxTarget.style.top = `${clamp(top, margin, window.innerHeight - margin - box.height)}px`
+    this.boxTarget.style.left = `${clamp(left, margin, window.innerWidth - margin - box.width)}px`
   }
 
   close() {
@@ -80,4 +83,10 @@ export default class extends Controller {
     if (this.hasInputTarget) this.inputTarget.value = ""
     this.close()
   }
+}
+
+// Keeps value within [min, max], preferring min when the two cross — i.e.
+// when the box is bigger than the space it has to fit in.
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max))
 }

@@ -1,8 +1,15 @@
 <%# candidates/query/question are only present when this re-renders after an
     ambiguous band match (see BandsController#create) — otherwise plain "Add
     band". question is the resolver's own wording ("Which Chase?") and is
-    blank when it fell back to plain SeatGeek matching. %>
-<div class="relative inline-block" data-controller="reveal <%= "popover" if candidates.present? %>">
+    blank when it fell back to plain SeatGeek matching.
+
+    band_flash is the other half: the outcome of an add that did resolve, one
+    way or the other, shown here rather than at the top of the page. The two
+    never appear together — an ambiguous match re-renders in place and sets no
+    flash — so there's only ever one popover box to position. %>
+<% style, message = band_flash %>
+<div class="relative inline-block" data-controller="reveal <%= "popover" if candidates.present? || message %>"
+     <%= tag.attributes(data: { popover_placement_value: "right" }) if message %>>
   <button type="button" data-reveal-target="button" data-action="click->reveal#show"
           class="btn-primary <%= "hidden" if candidates.present? %>">Add band</button>
   <%= form_with url: bands_path, method: :post,
@@ -15,6 +22,22 @@
         the name isn't an outright match — so the button says what's going on. %>
     <%= f.submit "Add", class: "btn-primary px-2 py-1",
                  data: { turbo_submits_with: "Checking…" } %>
+  <% end %>
+
+  <% if message %>
+    <%# Auto-dismissed on success only: "Now tracking Mumford & Sons" has done
+        its job in a couple of seconds, while a miss ("I couldn't find a
+        listing for Radiohead on SeatGeek") is something to read and act on,
+        so it waits to be dismissed. %>
+    <div class="fixed px-3 py-2 rounded-lg border shadow-lg w-64 z-30 text-left text-xs flex items-start justify-between gap-2 <%= flash_classes(style) %>"
+         data-popover-target="box" data-controller="flash"
+         data-flash-dismiss-after-value="<%= style == "alert" ? 0 : 4000 %>">
+      <p><%= message %></p>
+      <button type="button" data-action="click->flash#dismiss"
+              class="shrink-0 opacity-70 hover:opacity-100" aria-label="Dismiss">
+        <%= render "shared/x_icon", size: "size-3.5" %>
+      </button>
+    </div>
   <% end %>
 
   <% if candidates.present? %>
