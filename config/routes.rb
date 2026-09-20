@@ -11,6 +11,16 @@ Rails.application.routes.draw do
 
   root "dashboard#show"
 
+  # The public pages that used to be the showlist.live GitHub Pages site.
+  # Rails's implicit (.:format) suffix means /privacy.html and /terms.html
+  # still resolve here, so the URLs registered with Twilio for A2P 10DLC keep
+  # working unchanged.
+  get "about",   to: "pages#about"
+  get "privacy", to: "pages#privacy"
+  get "terms",   to: "pages#terms"
+  # The old site's home page is now /about.
+  get "index",   to: redirect("/about")
+
   get    "login",          to: "sessions#new"
   post   "login",          to: "sessions#create"
   get    "login/verify",   to: "sessions#new_code", as: :login_verify
