@@ -52,6 +52,9 @@ class BandsController < ApplicationController
       @band_query = name
       @band_question = result[:question]
       @band_candidates = result[:candidates]
+      # Rendering dashboard/show means supplying what that view loads in its
+      # controller — see DashboardController#show.
+      @show_caches = ShowCache.find_all(current_user.bands, current_user.zips)
       # Turbo requires a POST response to either redirect or carry a 4xx/5xx
       # status — a plain 200 render is treated as a bug ("Form responses must
       # redirect to another location") and silently dropped. This isn't a
