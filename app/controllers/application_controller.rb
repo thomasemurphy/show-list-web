@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= session[:phone] && User.find_or_create(session[:phone])
+    @current_user ||= session[:phone] && User.from_session(session[:phone])
   end
 
   def logged_in?

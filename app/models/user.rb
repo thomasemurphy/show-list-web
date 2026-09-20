@@ -20,6 +20,14 @@ class User
     new(phone, (snapshot.data || {}).dup)
   end
 
+  # A user already known to exist — the phone in the session, which only gets
+  # there after a successful login. The document isn't fetched until a field
+  # is actually read, so actions that only write (removing a band, toggling
+  # SMS alerts) cost no read at all.
+  def self.from_session(phone)
+    new(phone)
+  end
+
   # Mirrors shared/db.py's upsert_user: creates the doc with created_at if it
   # doesn't exist yet, otherwise leaves existing fields (zips, bands, channel,
   # messages) untouched.
@@ -30,28 +38,30 @@ class User
     end
   end
 
-  def initialize(phone, data = {})
+  # data of nil means "not fetched yet" (see .from_session), as distinct from
+  # a document that exists but has no fields.
+  def initialize(phone, data = nil)
     @phone = phone
     @data = data
   end
 
-  def zips = @data[:zips] || []
-  def channel = @data[:channel] || "sms"
-  def bands = @data[:bands] || []
+  def zips = data[:zips] || []
+  def channel = data[:channel] || "sms"
+  def bands = data[:bands] || []
 
   # Absent means the account predates this setting or has never toggled it —
   # default to enabled so existing users keep getting alerts they already had.
-  def sms_alerts_enabled? = @data.fetch(:sms_alerts_enabled, true)
+  def sms_alerts_enabled? = data.fetch(:sms_alerts_enabled, true)
 
   def sms_alerts_enabled=(enabled)
     doc_ref.set({ sms_alerts_enabled: enabled }, merge: true)
-    @data[:sms_alerts_enabled] = enabled
+    @data[:sms_alerts_enabled] = enabled if @data
   end
 
-  def password_digest = @data[:password_digest]
+  def password_digest = data[:password_digest]
 
   def password_digest=(digest)
-    @data[:password_digest] = digest
+    data[:password_digest] = digest
   end
 
   def has_password? = password_digest.present?
@@ -63,22 +73,22 @@ class User
 
   def add_band(name)
     doc_ref.set({ bands: FIRESTORE.field_array_union(name) }, merge: true)
-    @data[:bands] = (bands + [name]).uniq
+    @data[:bands] = (bands + [name]).uniq if @data
   end
 
   def remove_band(name)
     doc_ref.set({ bands: FIRESTORE.field_array_delete(name) }, merge: true)
-    @data[:bands] = bands - [name]
+    @data[:bands] = bands - [name] if @data
   end
 
   def add_zip(zip_code)
     doc_ref.set({ zips: FIRESTORE.field_array_union(zip_code) }, merge: true)
-    @data[:zips] = (zips + [zip_code]).uniq
+    @data[:zips] = (zips + [zip_code]).uniq if @data
   end
 
   def remove_zip(zip_code)
     doc_ref.set({ zips: FIRESTORE.field_array_delete(zip_code) }, merge: true)
-    @data[:zips] = zips - [zip_code]
+    @data[:zips] = zips - [zip_code] if @data
   end
 
   # Persists a drag-and-drop reorder. Ignores anything in new_order that
@@ -87,16 +97,24 @@ class User
   def reorder_bands(new_order)
     ordered = (new_order & bands) | bands
     doc_ref.set({ bands: ordered }, merge: true)
-    @data[:bands] = ordered
+    @data[:bands] = ordered if @data
   end
 
   def reorder_zips(new_order)
     ordered = (new_order & zips) | zips
     doc_ref.set({ zips: ordered }, merge: true)
-    @data[:zips] = ordered
+    @data[:zips] = ordered if @data
   end
 
   private
+
+  # Writes go straight to doc_ref, so a User built by .from_session only pays
+  # for the document once something reads a field. A write on an unfetched
+  # user skips the local bookkeeping above (`if @data`) — there's no copy to
+  # keep in step, and a later read picks the write up from Firestore.
+  def data
+    @data ||= (self.class.collection.doc(phone).get.data || {}).dup
+  end
 
   def doc_ref
     self.class.collection.doc(phone)

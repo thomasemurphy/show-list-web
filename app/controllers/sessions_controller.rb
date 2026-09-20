@@ -34,6 +34,10 @@ class SessionsController < ApplicationController
     if TwilioVerifyClient.check_code(phone, params[:code])
       session.delete(:pending_phone)
       session[:phone] = phone
+      # current_user assumes the document exists. This is the only entry point
+      # that can see a number for the first time — the password login requires
+      # an existing user, and the SMS bot creates its own.
+      User.find_or_create(phone)
       remember_me if params[:stay_logged_in] == "1"
       redirect_to dashboard_path, notice: "Logged in"
     else
