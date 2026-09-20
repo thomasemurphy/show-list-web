@@ -25,7 +25,12 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  # Heroku terminates TLS at the router and forwards X-Forwarded-Proto, which
+  # is what Rails checks, so this needs no assume_ssl. HSTS defaults to a
+  # one-year max-age with includeSubDomains: both showlist.live and
+  # app.showlist.live are Heroku-hosted with ACM certificates, so there is no
+  # plain-HTTP host under this domain for it to lock out.
+  config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
