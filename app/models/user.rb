@@ -28,14 +28,14 @@ class User
     new(phone)
   end
 
-  # Mirrors shared/db.py's upsert_user: creates the doc with created_at if it
-  # doesn't exist yet, otherwise leaves existing fields (zips, bands, channel,
-  # messages) untouched.
-  def self.find_or_create(phone)
-    find(phone) || begin
-      collection.doc(phone).set({ created_at: FIRESTORE.field_server_time }, merge: true)
-      find(phone)
-    end
+  def self.exists?(phone)
+    collection.doc(phone).get.exists?
+  end
+
+  # Mirrors shared/db.py's upsert_user: merge: true, so if the doc turns up
+  # in the meantime (the SMS bot creating it) its fields are left untouched.
+  def self.create(phone)
+    collection.doc(phone).set({ created_at: FIRESTORE.field_server_time }, merge: true)
   end
 
   # data of nil means "not fetched yet" (see .from_session), as distinct from
@@ -44,6 +44,10 @@ class User
     @phone = phone
     @data = data
   end
+
+  def guest? = false
+  def band_limit_reached? = false
+  def zip_limit_reached? = false
 
   def zips = data[:zips] || []
   def channel = data[:channel] || "sms"

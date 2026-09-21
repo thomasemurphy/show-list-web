@@ -1,5 +1,5 @@
 class BandsController < ApplicationController
-  before_action :require_login
+  before_action :allow_guest
 
   # Mirrors webhook/tools.py's add_band: validate against SeatGeek before
   # tracking, so we never silently track a band with no real SeatGeek match.
@@ -37,6 +37,10 @@ class BandsController < ApplicationController
   # and Turbo scrolls to the top — dumping the user at the top of the page
   # away from both the control they were using and the message meant for them.
   def create
+    if current_user.band_limit_reached?
+      redirect_to login_path, notice: "Log in to track more than #{GuestUser::BAND_LIMIT} bands" and return
+    end
+
     name = params[:name].to_s.strip
     if name.blank?
       redirect_back_or_to dashboard_path, flash: { band_alert: "Enter a band name" } and return

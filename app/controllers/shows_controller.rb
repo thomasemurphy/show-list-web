@@ -1,5 +1,5 @@
 class ShowsController < ApplicationController
-  before_action :require_login
+  before_action :allow_guest
 
   # ?band=<name>&zip=<code> — works for any band, not just ones the user
   # tracks, so this doubles as the "is X coming to my town" lookup.

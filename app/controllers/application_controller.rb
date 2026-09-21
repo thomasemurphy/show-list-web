@@ -31,4 +31,10 @@ class ApplicationController < ActionController::Base
   def require_login
     redirect_to login_path unless logged_in?
   end
+
+  # For the pages a visitor can try before logging in (the dashboard and what
+  # it posts to): current_user becomes a GuestUser backed by the session.
+  def allow_guest
+    @current_user = GuestUser.new(session) unless logged_in?
+  end
 end

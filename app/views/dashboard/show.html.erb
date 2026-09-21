@@ -1,5 +1,13 @@
 <% content_for :main_class, "max-w-4xl" %>
 
+<%# Same pitch as the login page, for visitors trying the dashboard out. %>
+<% if current_user.guest? %>
+  <div class="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
+    <p>showlist tracks the artists you follow and texts you when they're playing near you</p>
+    <p class="mt-1"><%= link_to "Log in", login_path, class: "nav-link" %> to save tracked bands</p>
+  </div>
+<% end %>
+
 <section class="mb-8 flex justify-center">
   <div class="card overflow-x-auto max-w-full inline-block mb-3">
     <table class="border-collapse text-sm" data-controller="sortable"
@@ -22,11 +30,18 @@
             </th>
           <% end %>
           <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700" data-controller="reveal">
-            <button type="button" data-reveal-target="button" data-action="click->reveal#show"
-                    class="btn-primary">Add zip code</button>
-            <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
-              <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
-              <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+            <%# A guest at the limit is sent to log in rather than shown a form
+                ZipsController#create would only turn away. %>
+            <% if current_user.zip_limit_reached? %>
+              <%= link_to "Add zip code", login_path, class: "btn-primary inline-block",
+                          title: "Log in to add more zip codes" %>
+            <% else %>
+              <button type="button" data-reveal-target="button" data-action="click->reveal#show"
+                      class="btn-primary">Add zip code</button>
+              <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
+                <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
+                <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+              <% end %>
             <% end %>
           </th>
         </tr>

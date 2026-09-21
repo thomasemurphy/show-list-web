@@ -38,24 +38,29 @@
   </head>
 
   <body class="bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-950 min-h-screen">
-    <% if logged_in? %>
-      <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
-        <div class="container mx-auto px-5 max-w-md flex items-center justify-between h-14">
-          <%= link_to "My Shows", dashboard_path, class: "text-sm font-semibold text-gray-900 dark:text-gray-100" %>
-          <div class="flex items-center gap-1">
-            <button type="button" data-controller="theme" data-action="click->theme#cycle"
-                    class="btn-text-muted inline-flex items-center justify-center p-1.5" aria-label="Toggle color theme">
-              <%= render "shared/sun_icon", target: "lightIcon" %>
-              <%= render "shared/moon_icon", target: "darkIcon", size: "size-4 hidden" %>
-              <%= render "shared/monitor_icon", target: "systemIcon", size: "size-4 hidden" %>
-            </button>
+    <%# Guests get the nav too — the dashboard is their landing page — with a
+        Log in button where the settings gear goes (not on the login pages
+        themselves, where it would only link to where they already are). %>
+    <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
+      <div class="container mx-auto px-5 max-w-md flex items-center justify-between h-14">
+        <%= link_to "My Shows", dashboard_path, class: "text-sm font-semibold text-gray-900 dark:text-gray-100" %>
+        <div class="flex items-center gap-1">
+          <button type="button" data-controller="theme" data-action="click->theme#cycle"
+                  class="btn-text-muted inline-flex items-center justify-center p-1.5" aria-label="Toggle color theme">
+            <%= render "shared/sun_icon", target: "lightIcon" %>
+            <%= render "shared/moon_icon", target: "darkIcon", size: "size-4 hidden" %>
+            <%= render "shared/monitor_icon", target: "systemIcon", size: "size-4 hidden" %>
+          </button>
+          <% if logged_in? %>
             <%= link_to settings_path, class: "btn-text-muted inline-flex items-center justify-center p-1.5", aria: { label: "Settings" } do %>
               <%= render "shared/gear_icon" %>
             <% end %>
-          </div>
+          <% elsif controller_name != "sessions" %>
+            <%= link_to "Log in", login_path, class: "btn-primary ml-1" %>
+          <% end %>
         </div>
-      </nav>
-    <% end %>
+      </div>
+    </nav>
     <main class="container mx-auto <%= content_for(:main_margin) || "mt-16" %> px-5 <%= content_for(:main_class) || "max-w-md" %>">
       <%# page_flashes, not flash: the add-a-band outcome is rendered next to
           the Add band control instead of up here. %>

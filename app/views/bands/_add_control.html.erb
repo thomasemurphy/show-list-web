@@ -8,8 +8,15 @@
     never appear together — an ambiguous match re-renders in place and sets no
     flash — so there's only ever one popover box to position. %>
 <% style, message = band_flash %>
+<%# A guest at the band limit gets a link to log in instead of the form —
+    still showing any outcome of the add that just got them there. %>
+<% at_limit = current_user.band_limit_reached? && candidates.blank? %>
 <div class="relative inline-block" data-controller="reveal <%= "popover" if candidates.present? || message %>"
      <%= tag.attributes(data: { popover_placement_value: "right" }) if message %>>
+  <% if at_limit %>
+    <%= link_to "Add band", login_path, class: "btn-primary inline-block",
+                title: "Log in to track more bands" %>
+  <% else %>
   <button type="button" data-reveal-target="button" data-action="click->reveal#show"
           class="btn-primary <%= "hidden" if candidates.present? %>">Add band</button>
   <%= form_with url: bands_path, method: :post,
@@ -22,6 +29,7 @@
         the name isn't an outright match — so the button says what's going on. %>
     <%= f.submit "Add", class: "btn-primary px-2 py-1",
                  data: { turbo_submits_with: "Checking…" } %>
+  <% end %>
   <% end %>
 
   <% if message %>
