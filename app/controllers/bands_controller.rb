@@ -41,7 +41,7 @@ class BandsController < ApplicationController
       redirect_to login_path, notice: "Log in to track more than #{GuestUser::BAND_LIMIT} bands" and return
     end
 
-    name = params[:name].to_s.strip
+    name = params[:band].to_s.strip
     if name.blank?
       redirect_back_or_to dashboard_path, flash: { band_alert: "Enter a band name" } and return
     end

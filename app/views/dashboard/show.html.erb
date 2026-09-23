@@ -42,7 +42,8 @@
                 <button type="button" data-reveal-target="button" data-action="click->reveal#show"
                         class="btn-primary btn-soft btn-add">Add zip code</button>
                 <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
-                  <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
+                  <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1",
+                                    inputmode: "numeric", autocomplete: "postal-code", enterkeyhint: "go", data: { reveal_target: "input" } %>
                   <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
                 <% end %>
               <% end %>

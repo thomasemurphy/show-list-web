@@ -21,9 +21,14 @@
           class="btn-primary btn-soft btn-add <%= "hidden" if candidates.present? %>">Add band</button>
   <%= form_with url: bands_path, method: :post,
                 class: candidates.present? ? "flex gap-1" : "hidden flex gap-1",
-                data: { reveal_target: "form" } do |f| %>
-    <%= f.text_field :name, value: (query if candidates.present?), placeholder: "Add a band",
-                      class: "input-field w-24 px-2 py-1",
+                autocomplete: "off", data: { reveal_target: "form" } do |f| %>
+    <%# A search field named :band, not a text field named :name — phone
+        browsers otherwise take it for a contact field and put their
+        password/card/address AutoFill buttons over the keyboard. %>
+    <%= f.search_field :band, value: (query if candidates.present?), placeholder: "Add a band",
+                      class: "input-field w-32 sm:w-24 px-2 py-1",
+                      autocapitalize: "words", autocorrect: "off", spellcheck: false,
+                      autocomplete: "off", enterkeyhint: "go",
                       data: { reveal_target: "input", popover_target: "input" } %>
     <%# Looking the band up can take a few seconds — it searches the web when
         the name isn't an outright match — so the button says what's going on. %>
@@ -59,7 +64,7 @@
       </div>
       <div class="flex flex-col gap-1">
         <% candidates.each do |candidate| %>
-          <%= button_to bands_path, params: { name: candidate[:name] }, method: :post,
+          <%= button_to bands_path, params: { band: candidate[:name] }, method: :post,
                          class: "btn-primary w-full text-left text-xs px-2 py-1.5",
                          data: { turbo_submits_with: "Adding…" } do %>
             <span class="block"><%= candidate[:name] %></span>
