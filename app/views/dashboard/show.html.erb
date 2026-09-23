@@ -1,83 +1,91 @@
 <% content_for :main_class, "max-w-4xl" %>
 
-<%# Same pitch as the login page, for visitors trying the dashboard out. %>
-<% if current_user.guest? %>
-  <div class="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
-    <p>showlist tracks the artists you follow and texts you when they're playing near you</p>
-    <p class="mt-1"><%= link_to "Log in", login_path, class: "nav-link" %> to save tracked bands</p>
-  </div>
-<% end %>
-
 <section class="mb-8 flex justify-center">
-  <div class="card overflow-x-auto max-w-full inline-block mb-3">
-    <table class="border-collapse text-sm" data-controller="sortable checker"
-           data-sortable-bands-url-value="<%= reorder_bands_path %>"
-           data-sortable-zips-url-value="<%= reorder_zips_path %>">
-      <thead class="bg-gray-50 dark:bg-gray-900/40">
-        <tr>
-          <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700"></th>
-          <% current_user.zips.each do |zip| %>
-            <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700 font-semibold text-gray-700 dark:text-gray-300" data-zip="<%= zip %>">
-              <div class="flex flex-col items-center gap-1">
-                <span data-action="pointerdown->sortable#startColumn" class="touch-none cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Drag to reorder" aria-label="Drag to reorder <%= zip %>">
-                  <%= render "shared/grip_icon", size: "size-4" %>
-                </span>
-                <span><%= zip %></span>
-                <%= button_to zip_path(zip), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Remove zip code #{zip}?" }, title: "Remove", aria: { label: "Remove zip code #{zip}" } do %>
-                  <%= render "shared/trash_icon", size: "size-3.5" %>
-                <% end %>
-              </div>
-            </th>
-          <% end %>
-          <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700" data-controller="reveal">
-            <%# A guest at the limit is sent to log in rather than shown a form
-                ZipsController#create would only turn away. %>
-            <% if current_user.zip_limit_reached? %>
-              <%= link_to "Add zip code", login_path, class: "btn-primary inline-block",
-                          title: "Log in to add more zip codes" %>
-            <% else %>
-              <button type="button" data-reveal-target="button" data-action="click->reveal#show"
-                      class="btn-primary">Add zip code</button>
-              <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
-                <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
-                <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
-              <% end %>
-            <% end %>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <% current_user.bands.each_with_index do |band, index| %>
-          <% row_border = index < current_user.bands.size - 1 ? "border-b border-gray-200 dark:border-gray-700" : "" %>
-          <tr data-band="<%= band %>">
-            <th class="px-3 py-3 text-left font-medium text-gray-900 dark:text-gray-100 <%= row_border %>">
-              <div class="flex items-center gap-2">
-                <span data-action="pointerdown->sortable#startRow" class="touch-none cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0" title="Drag to reorder" aria-label="Drag to reorder <%= band %>">
-                  <%= render "shared/grip_icon", size: "size-4" %>
-                </span>
-                <%= button_to band_path(band), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Stop tracking #{band}?" }, title: "Remove", aria: { label: "Stop tracking #{band}" } do %>
-                  <%= render "shared/trash_icon", size: "size-3.5" %>
-                <% end %>
-                <span><%= band %></span>
-              </div>
-            </th>
+  <%# Shrink-wraps the table; the pitch text uses w-0 min-w-full so it wraps to the table's width instead of widening it. %>
+  <div class="min-w-0 max-w-full">
+    <%# Same pitch as the login page, for visitors trying the dashboard out. %>
+    <% if current_user.guest? %>
+      <div class="w-0 min-w-full text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
+        <p class="text-4xl mb-4">🤳 🎸 🤘</p>
+        <p>showlist tracks the artists you follow and texts you when they're playing near you</p>
+        <p class="mt-5">Try it out! 👇</p>
+      </div>
+    <% end %>
+
+    <div class="card overflow-x-auto max-w-full mb-3">
+      <table class="border-collapse text-sm" data-controller="sortable checker"
+             data-sortable-bands-url-value="<%= reorder_bands_path %>"
+             data-sortable-zips-url-value="<%= reorder_zips_path %>">
+        <thead class="bg-gray-50 dark:bg-gray-900/40">
+          <tr>
+            <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700"></th>
             <% current_user.zips.each do |zip| %>
-              <% cache = @show_caches[[band, zip]] %>
-              <td class="px-3 py-3 text-center relative <%= row_border %>">
-                <%= render "shows/cell", band: band, zip: zip, events: cache && cache[:events], checked: cache.present? %>
-              </td>
+              <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700 font-semibold text-gray-700 dark:text-gray-300" data-zip="<%= zip %>">
+                <div class="flex flex-col items-center gap-1">
+                  <span data-action="pointerdown->sortable#startColumn" class="touch-none cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Drag to reorder" aria-label="Drag to reorder <%= zip %>">
+                    <%= render "shared/grip_icon", size: "size-4" %>
+                  </span>
+                  <span><%= zip %></span>
+                  <%= button_to zip_path(zip), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Remove zip code #{zip}?" }, title: "Remove", aria: { label: "Remove zip code #{zip}" } do %>
+                    <%= render "shared/trash_icon", size: "size-3.5" %>
+                  <% end %>
+                </div>
+              </th>
+            <% end %>
+            <th class="px-3 py-3 border-b-2 border-gray-100 dark:border-gray-700" data-controller="reveal">
+              <%# A guest at the limit is sent to log in rather than shown a form
+                  ZipsController#create would only turn away. %>
+              <% if current_user.zip_limit_reached? %>
+                <%= link_to "Add zip code", login_path, class: "btn-primary btn-soft btn-add inline-block",
+                            title: "Log in to add more zip codes" %>
+              <% else %>
+                <button type="button" data-reveal-target="button" data-action="click->reveal#show"
+                        class="btn-primary btn-soft btn-add">Add zip code</button>
+                <%= form_with url: zips_path, method: :post, class: "hidden flex gap-1", data: { reveal_target: "form" } do |f| %>
+                  <%= f.text_field :code, placeholder: "10001", maxlength: 5, class: "input-field w-20 px-2 py-1", data: { reveal_target: "input" } %>
+                  <%= f.submit "Add", class: "btn-primary px-2 py-1" %>
+                <% end %>
+              <% end %>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <% current_user.bands.each_with_index do |band, index| %>
+            <% row_border = index < current_user.bands.size - 1 ? "border-b border-gray-200 dark:border-gray-700" : "" %>
+            <tr data-band="<%= band %>">
+              <th class="px-3 py-3 text-left font-medium text-gray-900 dark:text-gray-100 <%= row_border %>">
+                <div class="flex items-center gap-2">
+                  <span data-action="pointerdown->sortable#startRow" class="touch-none cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0" title="Drag to reorder" aria-label="Drag to reorder <%= band %>">
+                    <%= render "shared/grip_icon", size: "size-4" %>
+                  </span>
+                  <%= button_to band_path(band), method: :delete, class: "btn-text-danger inline-flex items-center justify-center p-1", data: { turbo_confirm: "Stop tracking #{band}?" }, title: "Remove", aria: { label: "Stop tracking #{band}" } do %>
+                    <%= render "shared/trash_icon", size: "size-3.5" %>
+                  <% end %>
+                  <span><%= band %></span>
+                </div>
+              </th>
+              <% current_user.zips.each do |zip| %>
+                <% cache = @show_caches[[band, zip]] %>
+                <td class="px-3 py-3 text-center relative <%= row_border %>">
+                  <%= render "shows/cell", band: band, zip: zip, events: cache && cache[:events], checked: cache.present? %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+          <tr>
+            <th class="px-3 py-3">
+              <%= render "bands/add_control", query: @band_query, question: @band_question, candidates: @band_candidates %>
+            </th>
+            <% current_user.zips.each do %>
+              <td class="px-3 py-3"></td>
             <% end %>
           </tr>
-        <% end %>
-        <tr>
-          <th class="px-3 py-3">
-            <%= render "bands/add_control", query: @band_query, question: @band_question, candidates: @band_candidates %>
-          </th>
-          <% current_user.zips.each do %>
-            <td class="px-3 py-3"></td>
-          <% end %>
-        </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
+
+    <% if current_user.guest? %>
+      <p class="mt-4 w-0 min-w-full text-sm text-gray-600 dark:text-gray-400 text-center"><%= link_to "Log in", login_path, class: "nav-link" %> to save tracked bands</p>
+    <% end %>
   </div>
 </section>

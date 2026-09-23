@@ -1,3 +1,9 @@
+<% content_for :main_margin, "mt-6" %>
+
+<%= link_to dashboard_path, class: "btn-text-muted inline-flex items-center justify-center p-2 mb-3", title: "Back to dashboard", aria: { label: "Back to dashboard" } do %>
+  <%= render "shared/back_icon", size: "size-6" %>
+<% end %>
+
 <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">Log in to showlist</h1>
 
 <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
