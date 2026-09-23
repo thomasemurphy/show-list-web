@@ -42,6 +42,14 @@
     @apply animate-spin;
   }
 
+  turbo-frame .checking-icon {
+    @apply hidden;
+  }
+
+  turbo-frame.is-refreshing .checking-icon {
+    @apply inline-block;
+  }
+
   .sortable-dragging {
     @apply relative shadow-lg bg-white dark:bg-gray-800;
   }

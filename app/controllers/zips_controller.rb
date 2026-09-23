@@ -10,7 +10,12 @@ class ZipsController < ApplicationController
     zip_code = params[:code].to_s
     if zip_code.match?(/\A\d{5}\z/)
       current_user.add_zip(zip_code)
-      current_user.bands.each { |band| ShowChecker.check(band, zip_code) }
+      # Don't check bands against the new zip here — with enough tracked
+      # bands that sequential SeatGeek fan-out blows past Heroku's 30s
+      # router timeout (H12) even though the app keeps working in the
+      # background. The new column renders "Not checked yet" for every
+      # band instead, and the dashboard's checker controller walks it
+      # band-by-band client-side (see shows/_cell.html.erb).
       redirect_to dashboard_path, notice: "Zip code added"
     else
       redirect_to dashboard_path, alert: "Enter a valid 5-digit zip code"
