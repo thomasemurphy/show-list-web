@@ -47,9 +47,10 @@
         </tr>
       </thead>
       <tbody>
-        <% current_user.bands.each do |band| %>
-          <tr class="border-b border-gray-100 dark:border-gray-800 last:border-b-0" data-band="<%= band %>">
-            <th class="px-3 py-3 text-left font-medium text-gray-900 dark:text-gray-100">
+        <% current_user.bands.each_with_index do |band, index| %>
+          <% row_border = index < current_user.bands.size - 1 ? "border-b border-gray-200 dark:border-gray-700" : "" %>
+          <tr data-band="<%= band %>">
+            <th class="px-3 py-3 text-left font-medium text-gray-900 dark:text-gray-100 <%= row_border %>">
               <div class="flex items-center gap-2">
                 <span data-action="pointerdown->sortable#startRow" class="touch-none cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0" title="Drag to reorder" aria-label="Drag to reorder <%= band %>">
                   <%= render "shared/grip_icon", size: "size-4" %>
@@ -62,7 +63,7 @@
             </th>
             <% current_user.zips.each do |zip| %>
               <% cache = @show_caches[[band, zip]] %>
-              <td class="px-3 py-3 text-center relative">
+              <td class="px-3 py-3 text-center relative <%= row_border %>">
                 <%= render "shows/cell", band: band, zip: zip, events: cache && cache[:events], checked: cache.present? %>
               </td>
             <% end %>
