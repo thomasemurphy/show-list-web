@@ -67,8 +67,8 @@
     <main class="container mx-auto <%= content_for(:main_margin) || "mt-16" %> px-5 <%= content_for(:main_class) || "max-w-md" %>">
       <%# page_flashes, not flash: the add-a-band outcome is rendered next to
           the Add band control instead of up here. %>
-      <% page_flashes.each do |type, message| %>
-        <div data-controller="flash" class="mb-4 px-3 py-2 rounded-lg border flex items-center justify-between gap-2 <%= flash_classes(type) %>">
+      <% page_flashes.each do |_type, message| %>
+        <div data-controller="flash" class="mb-4 px-3 py-2 rounded-lg border flex items-center justify-between gap-2 <%= flash_classes %>">
           <p><%= message %></p>
           <button type="button" data-action="click->flash#dismiss" class="shrink-0 opacity-70 hover:opacity-100" aria-label="Dismiss">
             <%= render "shared/x_icon", size: "size-3.5" %>

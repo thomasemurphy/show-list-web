@@ -4,7 +4,7 @@ class ZipsController < ApplicationController
   # Mirrors webhook/tools.py's set_zip validation: exactly 5 digits.
   def create
     if current_user.zip_limit_reached?
-      redirect_to login_path, notice: "Log in to add more than #{GuestUser::ZIP_LIMIT} zip codes" and return
+      redirect_to login_path and return
     end
 
     zip_code = params[:code].to_s
@@ -16,7 +16,7 @@ class ZipsController < ApplicationController
       # background. The new column renders "Not checked yet" for every
       # band instead, and the dashboard's checker controller walks it
       # band-by-band client-side (see shows/_cell.html.erb).
-      redirect_to dashboard_path, notice: "Zip code added"
+      redirect_to dashboard_path
     else
       redirect_to dashboard_path, alert: "Enter a valid 5-digit zip code"
     end
@@ -24,7 +24,7 @@ class ZipsController < ApplicationController
 
   def destroy
     current_user.remove_zip(params[:code])
-    redirect_to dashboard_path, notice: "Removed zip code #{params[:code]}"
+    redirect_to dashboard_path
   end
 
   def reorder

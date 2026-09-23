@@ -16,7 +16,7 @@ class SettingsController < ApplicationController
     end
 
     current_user.set_password(params[:new_password])
-    redirect_to settings_path, notice: "Password updated"
+    redirect_to settings_path
   end
 
   def update_notifications

@@ -18,9 +18,8 @@ class BandsController < ApplicationController
   # keeps the rest of the page — the table, nav, everything — exactly as the
   # user left it.
   #
-  # Outcomes go in flash[:band_notice]/[:band_alert] rather than the usual
-  # notice/alert, which routes them to the popover next to the Add band
-  # control instead of the banner at the top of the page (see
+  # Errors go in flash[:band_alert] rather than the usual alert, which routes
+  # them to the popover next to the Add band control instead of the banner at the top of the page (see
   # ApplicationHelper::ANCHORED_FLASH_KEYS). Adding a band happens at the
   # bottom of a table that's often taller than the window, and a message
   # announcing itself off-screen above isn't a message.
@@ -38,7 +37,7 @@ class BandsController < ApplicationController
   # away from both the control they were using and the message meant for them.
   def create
     if current_user.band_limit_reached?
-      redirect_to login_path, notice: "Log in to track more than #{GuestUser::BAND_LIMIT} bands" and return
+      redirect_to login_path and return
     end
 
     name = params[:band].to_s.strip
@@ -51,7 +50,7 @@ class BandsController < ApplicationController
     when :confident
       current_user.add_band(result[:name])
       current_user.zips.each { |zip| ShowChecker.check_resolved(result, result[:name], zip) }
-      redirect_back_or_to dashboard_path, flash: { band_notice: "Now tracking #{result[:name]}" }
+      redirect_back_or_to dashboard_path
     when :ambiguous
       @band_query = name
       @band_question = result[:question]
@@ -77,7 +76,7 @@ class BandsController < ApplicationController
 
   def destroy
     current_user.remove_band(params[:name])
-    redirect_to dashboard_path, notice: "Stopped tracking #{params[:name]}"
+    redirect_to dashboard_path
   end
 
   def reorder

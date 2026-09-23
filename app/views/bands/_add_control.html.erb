@@ -3,11 +3,11 @@
     band". question is the resolver's own wording ("Which Chase?") and is
     blank when it fell back to plain SeatGeek matching.
 
-    band_flash is the other half: the outcome of an add that did resolve, one
-    way or the other, shown here rather than at the top of the page. The two
+    band_flash is the other half: the error from an add that failed to
+    resolve, shown here rather than at the top of the page. The two
     never appear together — an ambiguous match re-renders in place and sets no
     flash — so there's only ever one popover box to position. %>
-<% style, message = band_flash %>
+<% message = band_flash %>
 <%# A guest at the band limit gets a link to log in instead of the form —
     still showing any outcome of the add that just got them there. %>
 <% at_limit = current_user.band_limit_reached? && candidates.blank? %>
@@ -38,13 +38,8 @@
   <% end %>
 
   <% if message %>
-    <%# Auto-dismissed on success only: "Now tracking Mumford & Sons" has done
-        its job in a couple of seconds, while a miss ("I couldn't find a
-        listing for Radiohead on SeatGeek") is something to read and act on,
-        so it waits to be dismissed. %>
-    <div class="fixed px-3 py-2 rounded-lg border shadow-lg w-64 z-30 text-left text-xs flex items-start justify-between gap-2 <%= flash_classes(style) %>"
-         data-popover-target="box" data-controller="flash"
-         data-flash-dismiss-after-value="<%= style == "alert" ? 0 : 4000 %>">
+    <div class="fixed px-3 py-2 rounded-lg border shadow-lg w-64 z-30 text-left text-xs flex items-start justify-between gap-2 <%= flash_classes %>"
+         data-popover-target="box" data-controller="flash">
       <p><%= message %></p>
       <button type="button" data-action="click->flash#dismiss"
               class="shrink-0 opacity-70 hover:opacity-100" aria-label="Dismiss">

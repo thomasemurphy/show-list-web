@@ -41,7 +41,7 @@ class SessionsController < ApplicationController
       User.create(phone) if new_user
       adopt_guest_list(phone, include_zips: new_user)
       remember_me if params[:stay_logged_in] == "1"
-      redirect_to dashboard_path, notice: "Logged in"
+      redirect_to dashboard_path
     else
       flash.now[:alert] = "Incorrect or expired code"
       render :new_code, status: :unprocessable_entity
@@ -50,7 +50,7 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    redirect_to root_path, notice: "Logged out"
+    redirect_to root_path
   end
 
   # Password login form.
@@ -66,7 +66,7 @@ class SessionsController < ApplicationController
       session[:phone] = phone
       adopt_guest_list(phone, include_zips: false)
       remember_me if params[:stay_logged_in] == "1"
-      redirect_to dashboard_path, notice: "Logged in"
+      redirect_to dashboard_path
     else
       flash.now[:alert] = "Incorrect phone number or password"
       render :new_password, status: :unprocessable_entity
